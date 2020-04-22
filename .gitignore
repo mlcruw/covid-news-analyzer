@@ -130,3 +130,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Data
+*.csv
+*.txt
+*.zip
+*.tsv
+
+# Tained models
+*.h5
+*.hdf5
