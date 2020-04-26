@@ -74,7 +74,140 @@ word_idx = json.load(open("Data/word_idx.txt"))
 #print(result)
 
 
+#(0.42, 0.5, array([3, 4, 5])
+data_sample =  "What all of the sources agree about is the extensive cover-up of data and information about COVID-19 orchestrated by the Chinese government."
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
 
+#(0.59, 0.5, array([7, 6, 5])
+data_sample =  "extensive cover-up orchestrated by the Chinese government."
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.6, 0.6, array([7, 5, 6])
+data_sample = "Asked by Fox News' John Roberts about the reporting, President Trump remarked at Wednesday's coronavirus press briefing,  More and more we're hearing the story...we are doing a very thorough examination of this horrible situation. "
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.4, 0.4, array([3, 5, 4])
+data_sample = "thorough examination of this horrible situation"
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.53, 0.5, array([4, 6, 5])
+data_sample = "thorough examination of this"
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.29, 0.3, array([4, 2, 3])
+data_sample = " This is tremendous,  said Zuo-Feng Zhang, an epidemiologist at the University of California, Los Angeles.  If they took action six days earlier, there would have been much fewer patients and medical facilities would have been sufficient. We might have avoided the collapse of Wuhan’s medical system. "
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.41, 0.4, array([3, 5, 4])
+data_sample = "A protest of more than 200 demonstrators broke out in Southern California on Friday against the state’s stay-at-home-orders in reaction to the coronavirus outbreak, according to reports."
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.43, 0.5, array([3, 4, 5])
+data_sample = "A protest of more than 200 demonstrators broke out"
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.2, 0.3, array([1, 2, 3]) ??? "We don't have danger?"
+data_sample = " I don’t think there’s any reason for us to be on lockdown now,  Paula Doyle, 62, of Costa Mesa told the Los Angeles Times.  We didn’t have any dangers. We have no danger in our hospitals now of overflowing. "
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.42, 0.4, array([3, 5, 4])
+data_sample = " be on lockdown now"
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.41, 0.4, array([3, 5, 4])
+data_sample = " not on lockdown now"
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.45, 0.5, array([3, 4, 5])
+data_sample = "any dangers."
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.43, 0.5, array([3, 4, 5])
+data_sample = "no danger"
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.41, 0.4, array([3, 5, 4])
+data_sample = "danger"
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.39, 0.4, array([5, 3, 4])
+data_sample = " We didn’t have any dangers. We have no danger"
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.4, 0.4, array([3, 5, 4])
+data_sample = " don’t think there’s any reason for us to be on lockdown now"
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.6, 0.7, array([6, 5, 7]) no help?
+data_sample = "They keep on saying that there are no free spots,  she said.  They didn’t provide me with any help. They’ve just made me wait. "
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.4, 0.4, array([3, 5, 4])
+data_sample = "They didn’t provide me with any help. They’ve just "
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.51, 0.5, array([4, 6, 5])
+data_sample = "They provide me with lots of help."
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.42, 0.5, array([3, 4, 5])
+data_sample = "no free spots"
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.21, 0.3, array([1, 2, 3])
+data_sample = "Desperate to find help, Ms. Zhang and her family called everyone they could think of. But the hospitals were all full. Emergency responders told them they needed to secure a hospital bed first before an ambulance could be sent."
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.3, 0.3, array([4, 2, 3])
+data_sample = "But they had no time to mourn. Ms. Zhang’s grandmother was now deteriorating rapidly. They took her to a hospital, where a doctor said that her lungs appeared on a CT scan as almost entirely white — signs of severe pneumonia. She later tested positive for the coronavirus."
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.41, 0.5, array([4, 3, 5]) uncertain
+data_sample = "The damage is still highly uncertain. But if large gatherings like conferences and concerts continue to be canceled, and more people decide they will not fly this summer and stay home more generally, it’s likely to cripple the consumer-driven side of the economy."
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.58, 0.6, array([7, 5, 6]) praise
+data_sample = "Trump went on to praise Democratic governors who have complimented parts of the federal response, including Cuomo, Louisiana Gov. John Bel Edwards and California Gov. Gavin Newsom. He then played the clip of Cuomo describing how the President sent in the Army Corps of Engineers to build 2,500 beds at the Javits Center in New York."
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.4, 0.4, array([5, 3, 4]) struggling
+data_sample = "China is struggling to maintain its position in global value chains. Rising costs and increasingly unfriendly business environment are causing many potential investors to drag their feet."
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.5, 0.5, array([6, 4, 5])
+data_sample = "While recent supportive policies for manufacturing, small businesses and industries heavily affected by the epidemic have had a more obvious effect on the manufacturing sector, it is more difficult for service companies to make up their cash flow losses."
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
+
+#(0.31, 0.3, array([2, 4, 3])
+data_sample = "it is more difficult for "
+cur_result = live_test(prd_model,data_sample, word_idx)
+print(cur_result)
 
 def main():
     f = open('../../oldgit/covid_19_articles.sentences', 'r')
