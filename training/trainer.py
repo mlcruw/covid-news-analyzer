@@ -5,17 +5,54 @@ from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
+from sklearn.feature_extraction.text import CountVectorizer
+import gensim
+from gensim.models import Word2Vec
 
 model_class_map = {'gnb': GaussianNB, 'mnb': MultinomialNB,\
     'svm': SVC, 'lr': LogisticRegression}
 
+class Preprocess:
+    """
+    Description
+    ===========
+    Tranform text to features below:
+    """
+    
+    def __init__(self, X, feat='none'):
+        feat_mapping_dict = {
+            'BoW': self.BoW,
+            'Word2Vec': self.Word2Vec
+        }
+        self.out = feat_mapping_dict[feat](X)
+        
+    def BoW(self, X):
+        """
+        [sentence_1, sentence_2, ..., sentence_n] => dictionary
+        """
+        vectorizer = CountVectorizer()
+        vectorizer.fit(X)
+        return vectorizer.vocabulary_
+    
+    def Word2Vec(self, X):
+        """
+        nested list of words => nested list of "word embedding vector"
+        """
+        model = Word2Vec(sentences = X, size = 100, sg = 1, window = 3, min_count = 1, iter = 10)
+        #https://github.com/buomsoo-kim/Word-embedding-with-Python/blob/master/word2vec/source%20code/word2vec.ipynb
+        embed = [[[model[X[i][j]]] for j in range(len(X[i]))] for i in range(len(X))]
+        return embed
+
 class Trainer:
-    def __init__(self, data=None, models=None):
+    def __init__(self, data=None, models=None, feat='none'):
         self.models = {}
         if data is not None:
             self.set_data(data)
         if models is not None:
             self.init_models(models)
+        if feat != 'none':
+            self.feat = feat
+            self.preprocess_data()
 
     def set_data(self, data):
         """
@@ -33,6 +70,10 @@ class Trainer:
         self.X_val = data['X_val']
         self.y_val = data['y_val']
     
+    def preprocess_data(self):
+        self.X_train = Preprocess(self.X_train, self.feat).out
+        self.X_val = Preprocess(self.X_val, self.feat).out
+
     def init_models(self, models):
         """
         Setup model objects that will be trained
@@ -91,10 +132,34 @@ if __name__=='__main__':
     y_train[y_train>=0.5] = 1
     y_train[y_train<0.5] = 0
 
+
     X_val = np.random.rand(n_val, n_feats)
     y_val = np.random.rand(n_val)
     y_val[y_val>=0.5] = 1
     y_val[y_val<0.5] = 0
+
+    """
+    Test BoW
+    """
+    train_word_arr = ['the apple was good', 'I flew too close to the sun.']
+    train_label = np.random.rand(2)
+    data_test = {'X_train': train_word_arr, 'y_train': train_label, 'X_val': train_word_arr, 'y_val': train_label}
+    trainer_test = Trainer(data=data_test, models=['gnb', 'svm'], feat='BoW')
+    print('Test BoW done')
+
+    """
+    Test Word2Vec (gensim)
+    """
+    sentences = []
+    sentences.append(['[', 'The', 'Tragedie', 'of', 'Hamlet', 'by', 'William', 'Shakespeare', '1599', ']'])
+    sentences.append(['Actus', 'Primus', '.'])
+    sentences.append(['Fran', '.'])
+    train_label = np.random.rand(3)
+    data_test = {'X_train': sentences, 'y_train': train_label, 'X_val': sentences, 'y_val': train_label}
+    trainer_test = Trainer(data=data_test, models=['gnb', 'svm'], feat='Word2Vec')
+    
+   
+
 
     data = {'X_train': X_train, 'y_train': y_train, 'X_val': X_val, 'y_val': y_val}
 
