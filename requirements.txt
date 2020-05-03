@@ -1,3 +1,5 @@
 pandas
 ipython
 gensim
+scikit-learn
+nltk

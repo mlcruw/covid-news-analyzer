@@ -5,43 +5,11 @@ from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
-from sklearn.feature_extraction.text import CountVectorizer
-import gensim
-from gensim.models import Word2Vec
+from ..data.feat_extractor import FeatureExtractor
 
 model_class_map = {'gnb': GaussianNB, 'mnb': MultinomialNB,\
     'svm': SVC, 'lr': LogisticRegression}
 
-class Preprocess:
-    """
-    Description
-    ===========
-    Tranform text to features below:
-    """
-    
-    def __init__(self, X, feat='none'):
-        feat_mapping_dict = {
-            'BoW': self.BoW,
-            'Word2Vec': self.Word2Vec
-        }
-        self.out = feat_mapping_dict[feat](X)
-        
-    def BoW(self, X):
-        """
-        [sentence_1, sentence_2, ..., sentence_n] => dictionary
-        """
-        vectorizer = CountVectorizer()
-        vectorizer.fit(X)
-        return vectorizer.vocabulary_
-    
-    def Word2Vec(self, X):
-        """
-        nested list of words => nested list of "word embedding vector"
-        """
-        model = Word2Vec(sentences = X, size = 100, sg = 1, window = 3, min_count = 1, iter = 10)
-        #https://github.com/buomsoo-kim/Word-embedding-with-Python/blob/master/word2vec/source%20code/word2vec.ipynb
-        embed = [[[model[X[i][j]]] for j in range(len(X[i]))] for i in range(len(X))]
-        return embed
 
 class Trainer:
     def __init__(self, data=None, models=None, feat='none'):
@@ -71,8 +39,8 @@ class Trainer:
         self.y_val = data['y_val']
     
     def preprocess_data(self):
-        self.X_train = Preprocess(self.X_train, self.feat).out
-        self.X_val = Preprocess(self.X_val, self.feat).out
+        self.X_train = FeatureExtractor(self.X_train, self.feat).out
+        self.X_val = FeatureExtractor(self.X_val, self.feat).out
 
     def init_models(self, models):
         """
