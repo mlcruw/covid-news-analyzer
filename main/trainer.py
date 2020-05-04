@@ -2,13 +2,14 @@ from copy import copy
 import numpy as np
 import pandas as pd
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
-from sklearn.svm import SVC
+from sklearn.svm import SVC, LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
-from ..data.feat_extractor import FeatureExtractor
+from config import cfg
+from data.feature_extraction import FeatureExtractor
 
 model_class_map = {'gnb': GaussianNB, 'mnb': MultinomialNB,\
-    'svm': SVC, 'lr': LogisticRegression}
+    'svm': SVC, 'lr': LogisticRegression, 'linearsvm': LinearSVC}
 
 
 class Trainer:
@@ -39,8 +40,8 @@ class Trainer:
         self.y_val = data['y_val']
     
     def preprocess_data(self):
-        self.X_train = FeatureExtractor(self.X_train, self.feat).out
-        self.X_val = FeatureExtractor(self.X_val, self.feat).out
+        self.X_train, self.X_val = FeatureExtractor(self.X_train, self.X_val, self.feat).out
+        
 
     def init_models(self, models):
         """
@@ -65,7 +66,7 @@ class Trainer:
         """
         for model_name, model_obj in self.models.items():
             print("Training {}".format(model_name))
-            model_obj.fit(X_train, y_train)
+            model_obj.fit(self.X_train, self.y_train)
     
     def train_model(self, model):
         """
@@ -73,7 +74,7 @@ class Trainer:
         """
         if model not in self.models:
             raise Exception("{} doesn't exist in models".format(model))
-        self.models[model].fit(X_train, y_train)
+        self.models[model].fit(self.X_train, self.y_train)
     
     def evaluate(self):
         """
@@ -82,8 +83,8 @@ class Trainer:
         """
         metrics = []
         for model_name, model_obj in self.models.items():
-            y_pred = model_obj.predict(X_val)
-            precision, recall, f1, _ = precision_recall_fscore_support(y_val, y_pred, average='micro')
+            y_pred = model_obj.predict(self.X_val)
+            precision, recall, f1, _ = precision_recall_fscore_support(self.y_val, y_pred, average='micro')
             metrics.append({'precision': precision, 'recall': recall, 'f1-score': f1})
         return pd.DataFrame(metrics, index=self.models.keys())
 
@@ -125,6 +126,7 @@ if __name__=='__main__':
     train_label = np.random.rand(3)
     data_test = {'X_train': sentences, 'y_train': train_label, 'X_val': sentences, 'y_val': train_label}
     trainer_test = Trainer(data=data_test, models=['gnb', 'svm'], feat='Word2Vec')
+    print('Test Word2Vec done')
     
    
 
