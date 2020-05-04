@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+    <title>Covid News Analyser</title>
+    <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body style="background: #000;">
+    <div class="login">
+        <h1>Covid News Analysis</h1>
+
+        <form action="{{ url_for('predict')}}"method="post">
+            <input type="text" name="article_url" placeholder="Article URL" required="required" />
+            <button type="submit" class="btn btn-primary btn-block btn-large">Analyze article</button>
+        </form>
+        <br>
+        <div>
+            {% if sentiment %}
+            <h3>Sentiment</h3>{{sentiment}}
+            {% endif %}
+            
+            {% if emotion %}
+            <h3>Emotion</h3>{{emotion}}
+            {% endif %}
+    
+            {% if fake %}
+            <h3>Fakeness</h3>{{fake}}
+            {% endif %}
+    
+            {% if category %}
+            <h3>Category</h3>{{category}}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
