@@ -1,3 +1,5 @@
+import os
+import os.path as osp
 from copy import copy
 import numpy as np
 import pandas as pd
@@ -7,6 +9,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
 from config import cfg
 from data.feature_extraction import FeatureExtractor
+import pickle
 
 model_class_map = {'gnb': GaussianNB, 'mnb': MultinomialNB,\
     'svm': SVC, 'lr': LogisticRegression, 'linearsvm': LinearSVC}
@@ -64,8 +67,8 @@ class Trainer:
         """
         Train all the models on training data
         """
-        for model_name, model_obj in self.models.items():
-            print("Training {}".format(model_name))
+        for model_path, model_obj in self.models.items():
+            print("Training {}".format(model_path))
             model_obj.fit(self.X_train, self.y_train)
     
     def train_model(self, model):
@@ -76,13 +79,36 @@ class Trainer:
             raise Exception("{} doesn't exist in models".format(model))
         self.models[model].fit(self.X_train, self.y_train)
     
+    
+    def save_model(self, model, model_path):
+        """
+        Save a specific model to the path : "model_path"
+        """
+        if model not in self.models:
+            raise Exception("{} doesn't exist in models".format(model))
+            
+        file_path = osp.join(cfg.model_dir,model_path)
+        with open(file_path, 'wb') as file:
+            pickle.dump(self.models[model], file)
+    
+    def load_model(self, model, model_path):
+        """
+        Load a specific model from the path : "model_path"
+        """
+        if model not in self.models:
+            raise Exception("{} doesn't exist in models".format(model))
+            
+        file_path = osp.join(cfg.model_dir,model_path)
+        with open(file_path, 'rb') as file:
+            self.models[model] = pickle.load(file)
+    
     def evaluate(self):
         """
         Evaluate all the models on validation data and return metrics
         stored in a pandas DataFrame
         """
         metrics = []
-        for model_name, model_obj in self.models.items():
+        for model_path, model_obj in self.models.items():
             y_pred = model_obj.predict(self.X_val)
             precision, recall, f1, _ = precision_recall_fscore_support(self.y_val, y_pred, average='micro')
             metrics.append({'precision': precision, 'recall': recall, 'f1-score': f1})

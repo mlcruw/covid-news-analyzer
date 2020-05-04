@@ -31,6 +31,7 @@ class FeatureExtractor:
         X_val_counts = vectorizer.transform(X_val)
         return X_train_counts.toarray(), X_val_counts.toarray() #Fit requires dense
     
+    #TO-DO: load a pretrained embedding model
     def Word2Vec(self, X_train, X_val):
         """
         nested list of words => nested list of "word embedding vector"
