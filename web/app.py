@@ -3,6 +3,8 @@ import numpy as np
 from flask import Flask, request, jsonify, render_template
 import pickle
 from sklearn.linear_model import LogisticRegression
+from newspaper import Article
+from util import *
 
 app = Flask(__name__)
 # model = pickle.load(open('model.pkl', 'rb'))
@@ -17,7 +19,8 @@ def predict():
     """
     Uses the models to make the predictions and displays results on the page
     """
-    print(request.form.values)
+    article = get_article(request.form['article_url'])
+
     # prediction = model.predict(final_features)
 
     categories = ['Science', 'Politics', 'Religion', 'Entertainment', 'Medicine']
