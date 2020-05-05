@@ -1,5 +1,5 @@
 import os
-import os.path as osp
+# import os.path as os.path
 from copy import copy
 import numpy as np
 import pandas as pd
@@ -7,7 +7,7 @@ from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.svm import SVC, LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
-from config import cfg
+# from config import cfg
 from data.feature_extraction import FeatureExtractor
 import pickle
 
@@ -87,7 +87,7 @@ class Trainer:
         if model not in self.models:
             raise Exception("{} doesn't exist in models".format(model))
             
-        file_path = osp.join(cfg.model_dir,model_path)
+        file_path = os.path.join(cfg.model_dir,model_path)
         with open(file_path, 'wb') as file:
             pickle.dump(self.models[model], file)
     
@@ -98,7 +98,7 @@ class Trainer:
         if model not in self.models:
             raise Exception("{} doesn't exist in models".format(model))
             
-        file_path = osp.join(cfg.model_dir,model_path)
+        file_path = os.path.join(cfg.model_dir,model_path)
         with open(file_path, 'rb') as file:
             self.models[model] = pickle.load(file)
     

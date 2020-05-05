@@ -4,7 +4,7 @@ from nltk.tokenize import word_tokenize
 nltk.download('stopwords')
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
-from nltk.stem import WordNetLemmatizer 
+from nltk.stem import WordNetLemmatizer
 
 # FIXME:
 # Lemmatizer needs POS tags to work!
@@ -58,7 +58,7 @@ def stem_text(words):
     """
     Input: list of strings
     Output: list of strings
-    """ 
+    """
     stems = []
     for word in words:
         stems.append(porter.stem)
@@ -91,5 +91,5 @@ def preprocessor_fn(text, tasks=None):
 
     for task in tasks:
         processed_text = task_mapping_dict[task](processed_text)
-  
+
     return processed_text
