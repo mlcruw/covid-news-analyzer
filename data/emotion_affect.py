@@ -71,5 +71,5 @@ class EmotionAffectDataset(Dataset):
 
 
   # Split data
-  def split_data(self, train_split=0.9, test_ratio=0.0):
-    super().split_data(train_split, test_ratio)
+  def split_data(self, test_size=0.2):
+    super().split_data(test_size)

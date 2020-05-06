@@ -25,7 +25,7 @@ args = argparser()
 
 # Create the dataset class object
 dataset = dataset_map[args.dataset]()
-dataset.split_data(train_split = args.split_ratio, test_ratio = args.test_ratio)
+dataset.split_data(test_size=args.test_ratio)
 data_inp = {'X_train': dataset.train_data['X'], 'y_train': dataset.train_data['y'], 'X_val': dataset.test_data['X'], 'y_val': dataset.test_data['y']}
 # The above step takes care of reading the dataset
 # and splitting it
@@ -67,7 +67,7 @@ for model in args.models:
       # If not passed here, do not comment "import config" in trainer otherwise it does not know the folder path for loading and saving models
 
       # When calling like this, the mapping from Train and Config is already one-to-one?
-      trainer = Trainer(data=data_inp, models=[model], feat=feat, cfg=config)
+      trainer = Trainer(data=data_inp, models=[model], transforms=[feat], cfg=config)
       #1. If continue train from a saved model
       #... example usage of continue_train
       #........python3 main.py --dataset news_cat --models lr --feats bow --split_ratio 0.02 --test_ratio 0.01 --load_path bow_0 --save_path bow_1 -c
@@ -96,7 +96,7 @@ for model in args.models:
 
       #6. save model
       if not(args.test_only):
-         trainer.save_model(model, args.save_path)
+         trainer.save_model(model, feat, args.save_path)
 
 #Output the best model precision and configuration
 trainer.logger.info(['The best model precision is %.2f ' % best_precision])
