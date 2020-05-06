@@ -25,7 +25,7 @@ args = argparser()
 
 # Create the dataset class object
 dataset = dataset_map[args.dataset]()
-dataset.split_data(test_size=args.test_ratio)
+dataset.split_data(train_size=args.split_ratio,test_size=args.test_ratio)
 data_inp = {'X_train': dataset.train_data['X'], 'y_train': dataset.train_data['y'], 'X_val': dataset.test_data['X'], 'y_val': dataset.test_data['y']}
 # The above step takes care of reading the dataset
 # and splitting it
@@ -103,4 +103,6 @@ trainer.logger.info(['The best model precision is %.2f ' % best_precision])
 trainer.logger.info(['The best model configuration is ', ', '.join("%s: %s" % item for item in vars(best_config).items())])
 
 #Sample usage:
-#python3 main.py --dataset news_cat --models lr linearsvm --feats bow word2vec  --split_ratio 0.005 --test_ratio 0.0005 --save_path best
+#python3 main.py --dataset news_cat --models lr linearsvm --feats bow word2vec  --split_ratio 0.005 --test_ratio 0.01 --save_path best
+
+#python3 main.py --dataset emo_aff --models lr --feats bow ngram tfidf --split_ratio 0.005 --test_ratio 0.2 --save_path best
