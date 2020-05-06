@@ -1,6 +1,7 @@
 import gensim
 from gensim.models import Word2Vec
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+
 import numpy as np
 
 class FeatureExtractor:
@@ -13,7 +14,9 @@ class FeatureExtractor:
     def __init__(self, X_train, X_val, feat='none'):
         feat_mapping_dict = {
             'bow': self.bow,
-            'word2vec': self.word2vec
+            'word2vec': self.word2vec,
+            'tfidf': self.tfidf,
+            'ngram': self.ngram
         }
         self.out = feat_mapping_dict[feat](X_train, X_val)
         
@@ -25,11 +28,29 @@ class FeatureExtractor:
         #vectorizer.fit(X)
         X_train_counts = vectorizer.fit_transform(X_train)
         #return vectorizer.vocabulary_
-        print(X_train_counts.shape)
-        #print(X_train_counts)
-        
         X_val_counts = vectorizer.transform(X_val)
         return X_train_counts.toarray(), X_val_counts.toarray() #Fit requires dense
+    
+    def tfidf(self, X_train, X_val):
+        """
+        [sentence_1, sentence_2, ..., sentence_n] => dictionary
+        """
+        vectorizer = TfidfVectorizer()
+        X_train_counts = vectorizer.fit_transform(X_train)
+        X_val_counts = vectorizer.transform(X_val)
+        return X_train_counts.toarray(), X_val_counts.toarray() #Fit requires dense
+    
+    def ngram(self, X_train, X_val):
+        """
+        [sentence_1, sentence_2, ..., sentence_n] => dictionary
+        """
+        #TODO 5 is large I guess?
+        vectorizer = CountVectorizer(analyzer='char_wb', ngram_range=(5, 5))
+        X_train_counts = vectorizer.fit_transform(X_train)
+        #print(vectorizer.get_feature_names())
+        X_val_counts = vectorizer.transform(X_val)
+        return X_train_counts.toarray(), X_val_counts.toarray() #Fit requires dense
+        
     
     #TODO: load a pretrained embedding model
     def word2vec(self, X_train, X_val):
@@ -66,7 +87,7 @@ class FeatureExtractor:
                 for k in range(embed_dim):
                     if j < len(X_val[i]):
                         if X_val[i][j] in model.wv.vocab:
-                            embed_val[i][j][k] = model[X_val[i][j]][k]
+                            embed_val[i - len(X_train)][j][k] = model[X_val[i][j]][k]
         embed_val = embed_val.reshape((len(X_val), max_word * embed_dim))
         print('Embed val . shape' , embed_val.shape)
         
