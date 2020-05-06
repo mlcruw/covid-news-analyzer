@@ -40,7 +40,8 @@ class EmotionAffectDataset(Dataset):
     print("Reading data...")
     #TODO!!!!!! replace the hard-coded path
     #Some lines start with "the_tale_of" and has no "@"; just a caption; not a real training sample
-    with open('data/datasets/emotion_affect_dataset/Emotion_Affect.txt', 'r') as f:
+    #use raw as extension because .txt will be filtered
+    with open('data/datasets/emotion_affect_dataset/Emotion_Affect.raw', 'r') as f:
       # Read raw data into pandas dataframe
       s = f.readlines()
       emo_class = []
