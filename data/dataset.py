@@ -2,7 +2,7 @@ import os
 import glob
 import subprocess
 import zipfile
-
+from sklearn.model_selection import train_test_split
 
 # Base Dataset class
 class Dataset:
@@ -94,14 +94,8 @@ class Dataset:
     return len(self.data.index)
 
   # Split data test_ratio is for debugging cuz the whole dataset is too large
-  def split_data(self, train_split, test_ratio):
-    num_samples = len(self.data.index)
-    num_train_samples = int(train_split * num_samples)
-    num_test_samples = (num_samples - num_train_samples) if test_ratio == 0.0 else int(test_ratio * num_samples)
-    print("Spliting the data : %d - %d is train, %d - %d is test" % (0, num_train_samples - 1, num_train_samples, num_train_samples + num_test_samples - 1))
-    self.train_data = self.data.iloc[:num_train_samples, :]
-    self.test_data = self.data.iloc[num_train_samples: num_train_samples + num_test_samples, :]
-
+  def split_data(self, test_size):
+    self.train_data, self.test_data = train_test_split(self.data, test_size=test_size)
 
   # Print string for class object
   def __str__(self):
