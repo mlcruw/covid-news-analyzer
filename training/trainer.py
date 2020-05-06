@@ -7,16 +7,21 @@ from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.svm import SVC, LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
-# from config import cfg
+#Do not comment as it contains the default configuration for trainer, see parameter for __init__ below
+from training.config import Config
 from data.feature_extraction import FeatureExtractor
 import pickle
+#The logging system
+from utils.logger import colorlogger
+
 
 model_class_map = {'gnb': GaussianNB, 'mnb': MultinomialNB,\
     'svm': SVC, 'lr': LogisticRegression, 'linearsvm': LinearSVC}
 
 
 class Trainer:
-    def __init__(self, data=None, models=None, feat='none'):
+    #TO-DO: the config and log_name as arguments? 
+    def __init__(self, data=None, models=None, feat='none', cfg=Config(), log_name='logs.txt'):
         self.models = {}
         if data is not None:
             self.set_data(data)
@@ -25,6 +30,11 @@ class Trainer:
         if feat != 'none':
             self.feat = feat
             self.preprocess_data()
+        # The current configuration for this trainer object
+        self.cfg = cfg
+        
+        # The logger to saving (potentially) the config object and other stuff
+        self.logger = colorlogger(cfg.log_dir, log_name=log_name)
 
     def set_data(self, data):
         """
@@ -69,6 +79,7 @@ class Trainer:
         """
         for model_path, model_obj in self.models.items():
             print("Training {}".format(model_path))
+            self.logger.info("Training {}".format(model_path))
             model_obj.fit(self.X_train, self.y_train)
     
     def train_model(self, model):
@@ -86,10 +97,15 @@ class Trainer:
         """
         if model not in self.models:
             raise Exception("{} doesn't exist in models".format(model))
-            
-        file_path = os.path.join(cfg.model_dir,model_path)
+        #It uses the configuration to find the model directory  
+        #Config should be imported somehow so that it knows where the folder is
+        file_path = os.path.join(self.cfg.model_dir,model_path)
         with open(file_path, 'wb') as file:
             pickle.dump(self.models[model], file)
+        
+        # Output the associated config object to log
+        self.logger.info("Saving configuration:")
+        self.logger.info(', '.join("%s: %s" % item for item in vars(self.cfg).items()))
     
     def load_model(self, model, model_path):
         """
@@ -97,10 +113,15 @@ class Trainer:
         """
         if model not in self.models:
             raise Exception("{} doesn't exist in models".format(model))
-            
-        file_path = os.path.join(cfg.model_dir,model_path)
+        #It uses the configuration to find the model directory    
+        #Config should be somewhere called to see the folder path
+        file_path = os.path.join(self.cfg.model_dir,model_path)
         with open(file_path, 'rb') as file:
             self.models[model] = pickle.load(file)
+        
+        # Tell what the loading configuration looks like
+        self.logger.info("Loading from this configuration:")
+        self.logger.info(', '.join("%s: %s" % item for item in vars(self.cfg).items()))
     
     def evaluate(self):
         """
@@ -132,30 +153,6 @@ if __name__=='__main__':
     y_val = np.random.rand(n_val)
     y_val[y_val>=0.5] = 1
     y_val[y_val<0.5] = 0
-
-    """
-    Test BoW
-    """
-    train_word_arr = ['the apple was good', 'I flew too close to the sun.']
-    train_label = np.random.rand(2)
-    data_test = {'X_train': train_word_arr, 'y_train': train_label, 'X_val': train_word_arr, 'y_val': train_label}
-    trainer_test = Trainer(data=data_test, models=['gnb', 'svm'], feat='BoW')
-    print('Test BoW done')
-
-    """
-    Test Word2Vec (gensim)
-    """
-    sentences = []
-    sentences.append(['[', 'The', 'Tragedie', 'of', 'Hamlet', 'by', 'William', 'Shakespeare', '1599', ']'])
-    sentences.append(['Actus', 'Primus', '.'])
-    sentences.append(['Fran', '.'])
-    train_label = np.random.rand(3)
-    data_test = {'X_train': sentences, 'y_train': train_label, 'X_val': sentences, 'y_val': train_label}
-    trainer_test = Trainer(data=data_test, models=['gnb', 'svm'], feat='Word2Vec')
-    print('Test Word2Vec done')
-    
-   
-
 
     data = {'X_train': X_train, 'y_train': y_train, 'X_val': X_val, 'y_val': y_val}
 

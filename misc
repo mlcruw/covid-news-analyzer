@@ -1,0 +1,90 @@
+
+    """
+    Test BoW
+    """
+    train_word_arr = ['the apple was good', 'I flew too close to the sun.']
+    train_label = np.random.rand(2)
+    data_test = {'X_train': train_word_arr, 'y_train': train_label, 'X_val': train_word_arr, 'y_val': train_label}
+    trainer_test = Trainer(data=data_test, models=['gnb', 'svm'], feat='BoW')
+    print('Test BoW done')
+
+    """
+    Test Word2Vec (gensim)
+    """
+    sentences = []
+    sentences.append(['[', 'The', 'Tragedie', 'of', 'Hamlet', 'by', 'William', 'Shakespeare', '1599', ']'])
+    sentences.append(['Actus', 'Primus', '.'])
+    sentences.append(['Fran', '.'])
+    train_label = np.random.rand(3)
+    data_test = {'X_train': sentences, 'y_train': train_label, 'X_val': sentences, 'y_val': train_label}
+    trainer_test = Trainer(data=data_test, models=['gnb', 'svm'], feat='Word2Vec')
+    print('Test Word2Vec done')
+    
+   
+
+   
+
+#   #==============================================================#
+#   #1. BoW
+#   text = list()
+#   for i in range(df.shape[0]):
+#     text.append(df.text[i])
+
+#   train_text = text[0: train_num]
+#   test_text = text[train_num: train_num + test_num]
+#   train_label = [cate_dict[df.category[i]] for i in range(train_num)]
+#   test_label = [cate_dict[df.category[i]] for i in range(train_num, train_num + test_num)]
+
+#   data_inp = {'X_train': train_text, 'y_train': train_label, 'X_val': test_text, 'y_val': test_label}
+
+#   trainer = Trainer(data=data_inp, models=cfg.model, feat='BoW')
+
+#   #If continue train from a saved model
+#   if cfg.continue_train or cfg.test_only:
+#     trainer.load_model(cfg.model[0], 'bow_0')#cfg.load_path)
+#   if not(cfg.test_only):
+#     trainer.train()
+#   metrics = trainer.evaluate()
+#   print(metrics)
+
+#   #save model
+#   if not(cfg.test_only):
+#       trainer.save_model(cfg.model[0], 'bow_1')#cfg.save_path)
+#   #==============================================================#
+#   #python3 main/train_news.py --dataset news_category_dataset --feat 'BoW' --model linearsvm
+
+#   #python3 main/train_news.py --dataset news_category_dataset --feat 'BoW' --model lr --continue --load_path bow_0 --save_path bow_1
+
+
+#   #==============================================================#
+#   #2. Word2Vec (To-do: train this at a much larger scale Google News?)
+#   #Tokenize
+#   token = list()
+#   for i in range(train_num + test_num):
+#     token.append(preprocessor_fn(df.text[i], ['tokenize']))
+
+#   train_token = token[0: train_num]
+#   test_token = token[train_num: train_num + test_num]
+#   train_label = [cate_dict[df.category[i]] for i in range(train_num)]
+#   test_label = [cate_dict[df.category[i]] for i in range(train_num, train_num + test_num)]
+
+#   data_inp = {'X_train': train_token, 'y_train': train_label, 'X_val': test_token, 'y_val': test_label}
+#   trainer = Trainer(data=data_inp, models=cfg.model, feat=cfg.feat)
+
+#   #If continue train from a saved model
+#   if cfg.continue_train or cfg.test_only:
+#       trainer.load_model(cfg.model[0], cfg.load_path)
+
+#   if not(cfg.test_only):
+#       trainer.train()
+#   metrics = trainer.evaluate()
+#   print(metrics)
+
+#   # Save model
+#   if not(cfg.test_only):
+#     trainer.save_model(cfg.model[0], cfg.save_path)
+
+#   #==============================================================#
+#   #python3 main/train_news.py --dataset news_category_dataset --feat 'Word2Vec' --model lr --save_path word2vec_0
+
+#   #python3 main/train_news.py --dataset news_category_dataset --feat 'Word2Vec' --model lr --load_path 'word2vec_0' --test
