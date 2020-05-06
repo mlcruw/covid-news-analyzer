@@ -27,7 +27,7 @@ class FakeNewsDataset(Dataset):
   # Download the dataset
   def download_data(self):
     # Download and store the absolute path to dirname
-    self.dataset_dir = super().download_data(self.dirname, self.cmd)
+    super().download_data(self.dirname, self.cmd)
 
 
   # Read data from files
