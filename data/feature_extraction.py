@@ -12,12 +12,12 @@ class FeatureExtractor:
     
     def __init__(self, X_train, X_val, feat='none'):
         feat_mapping_dict = {
-            'BoW': self.BoW,
-            'Word2Vec': self.Word2Vec
+            'bow': self.bow,
+            'word2vec': self.word2vec
         }
         self.out = feat_mapping_dict[feat](X_train, X_val)
         
-    def BoW(self, X_train, X_val):
+    def bow(self, X_train, X_val):
         """
         [sentence_1, sentence_2, ..., sentence_n] => dictionary
         """
@@ -32,7 +32,7 @@ class FeatureExtractor:
         return X_train_counts.toarray(), X_val_counts.toarray() #Fit requires dense
     
     #TODO: load a pretrained embedding model
-    def Word2Vec(self, X_train, X_val):
+    def word2vec(self, X_train, X_val):
         """
         nested list of words => nested list of "word embedding vector"
         """
@@ -61,12 +61,13 @@ class FeatureExtractor:
         
         #embed_val = [[[(model[X_val[i][j]] if X_val[i][j] in model.wv.vocab else 0) if j < len(X_val[i]) else 0] for j in range(56)] for i in range(len(X_val))]
         embed_val = np.zeros((len(X_val), max_word, embed_dim))
-        for i in range(len(X_val)):
+        for i in range(len(X_train), len(X_train) + len(X_val)):
             for j in range(max_word):
                 for k in range(embed_dim):
                     if j < len(X_val[i]):
                         if X_val[i][j] in model.wv.vocab:
                             embed_val[i][j][k] = model[X_val[i][j]][k]
         embed_val = embed_val.reshape((len(X_val), max_word * embed_dim))
-          
+        print('Embed val . shape' , embed_val.shape)
+        
         return embed_train, embed_val
