@@ -35,32 +35,16 @@ class Trainer:
     """
     #TODO: Pass dataset object here instead of data dict
     #TO-DO: the config and log_name as arguments?
-    def __init__(self, data, models, transforms, cfg=Config(), log_name='logs.txt'):
+    def __init__(self, dataset, models, transforms, cfg=Config(), log_name='logs.txt'):
         self.models = {}
         self.transformed = {}
-        self.set_data(data)
+        self.dataset = dataset
         self.process_data(transforms)
         self.init_models(models, transforms)
         # The current configuration for this trainer object
         self.cfg = cfg
         # The logger to saving (potentially) the config object and other stuff
         self.logger = colorlogger(cfg.log_dir, log_name=log_name)
-
-    def set_data(self, data):
-        """
-        Setup data arrays that will be used for training and validation
-
-        Args:
-        data: dictionary of numpy arrays containing training and validation data
-        """
-        keys = ['X_train', 'y_train', 'X_val', 'y_val']
-        for key in keys:
-            if key not in data:
-                raise Exception('Invalid data object passed to Trainer')
-        self.X_train = data['X_train']
-        self.y_train = data['y_train']
-        self.X_val = data['X_val']
-        self.y_val = data['y_val']
 
     def process_data(self, transforms):
         """
@@ -69,7 +53,8 @@ class Trainer:
         """
         for transform in transforms:
             self.transformed[transform] = {}
-            X_train, X_val = FeatureExtractor(self.X_train, self.X_val, transform).out
+            X_train, X_val = FeatureExtractor(self.dataset.train_data['X'],
+                self.dataset.test_data['X'], transform).out
             self.transformed[transform]['X_train'] = X_train
             self.transformed[transform]['X_val'] = X_val
 
@@ -102,7 +87,7 @@ class Trainer:
                 X_train = self.transformed[transform]['X_train']
                 print("Training {} with {} transformation".format(model, transform))
                 self.logger.info("Training {} with {} transformation".format(model, transform))
-                model_obj.fit(X_train, self.y_train)
+                model_obj.fit(X_train, self.dataset.train_data['y'])
 
     def train_model(self, model):
         """
@@ -112,7 +97,7 @@ class Trainer:
             raise Exception("{} doesn't exist in models".format(model))
         for transform in self.models[model]:
             X_train = self.transformed[transform]['X_train']
-            self.models[model][transform].fit(X_train, self.y_train)
+            self.models[model][transform].fit(X_train, self.dataset.train_data['y'])
 
     def save_model(self, model, transform, model_path):
         """
@@ -160,7 +145,8 @@ class Trainer:
                 model_obj = self.models[model][transform]
                 X_val = self.transformed[transform]['X_val']
                 y_pred = model_obj.predict(X_val)
-                precision, recall, f1, _ = precision_recall_fscore_support(self.y_val, y_pred, average='micro')
+                precision, recall, f1, _ = precision_recall_fscore_support(
+                    self.dataset.test_data['y'], y_pred, average='micro')
                 metric_dict = {
                     'model': model,
                     'transform': transform,
