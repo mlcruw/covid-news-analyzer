@@ -37,6 +37,8 @@ class FakeNewsDataset(Dataset):
     self.test_data = pandas.read_csv(self.dataset_dir + "/test.csv", sep=",")
     print("Done")
 
+  def split_data(self, **args):
+    pass
 
   # Standardize data
   def standardize_data(self):

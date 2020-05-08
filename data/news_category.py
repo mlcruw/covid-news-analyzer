@@ -65,8 +65,3 @@ class NewsCategoryDataset(Dataset):
   # Standardize data
   def standardize_data(self):
     raise NotImplementedError("StanSent standardize_data method doesn't exist!")
-
-
-  # Split data
-  def split_data(self, train_size=0.7, test_size=0.2):
-    super().split_data(train_size, test_size)

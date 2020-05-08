@@ -42,6 +42,8 @@ class StanfordSentimentDataset(Dataset):
     self.test_data = pandas.read_csv(self.dataset_dir + "/test.tsv", sep="\t")
     print("Done")
 
+  def split_data(self, **kwargs):
+    pass
 
   # Standardize data
   def standardize_data(self):

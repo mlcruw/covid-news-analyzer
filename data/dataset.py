@@ -93,11 +93,17 @@ class Dataset:
   def get_size(self):
     return len(self.data.index)
 
-  # Split data test_ratio is for debugging cuz the whole dataset is too large
-  # Add train_size because train_test_split(test_size) is not what intended. The intention is that the first like 1,000 samples are train and the following 100 is test o.w. the program might crash on jupyter lab or some other simple environments.
-  def split_data(self, train_size, test_size):
-    self.train_data, self.test_data = train_test_split(self.data, train_size = train_size, test_size=test_size, shuffle=False)
+  # Datasize ratio is for debugging cuz the whole dataset is too large
+  def split_data(self, dataset_ratio=1.0, test_size=0.2):
+    """
+    Split the data into train and test splits
 
+    Args:
+      - dataset_ratio: ratio of dataset to use
+      - test_size: proportion of data to use for testing
+    """
+    data = self.data.iloc[:int(len(self.data)*dataset_ratio)]
+    self.train_data, self.test_data = train_test_split(data, test_size=test_size, shuffle=False)
     
   # Print string for class object
   def __str__(self):
