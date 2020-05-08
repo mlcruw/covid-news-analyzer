@@ -26,6 +26,8 @@ args = argparser()
 # Create the dataset class object
 dataset = dataset_map[args.dataset]()
 dataset.split_data(train_size=args.split_ratio,test_size=args.test_ratio)
+# The above step takes care of reading the dataset
+# and splitting it
 
 config = Config(dataset=args.dataset,
                 model=args.models,
@@ -43,7 +45,7 @@ if args.test_only:
 # Train
 if not(args.test_only):
     trainer.train()
-# Test
+# Get the evaluation metric
 metrics = trainer.evaluate()
 # Save best
 if not(args.test_only):
@@ -55,7 +57,15 @@ else:
     trainer.logger.info(metrics)
 
 # Sample Usage:
+# [Emotion]
 # 1. Train
-#       python3 main.py --dataset emo_aff --models lr linearsvm gnb --feats bow ngram tfidf --split_ratio 0.8 --test_ratio 0.1 --save_path best
+#       python3 main.py --dataset emo_aff --models lr linearsvm gnb --feats bow ngram tfidf --split_ratio 0.8 --test_ratio 0.1 --save_path emo.model
 # 2. Test
-#       python3 main.py --dataset emo_aff --models linearsvm  --feats ngram  --split_ratio 0.7 --test_ratio 0.3 --save_path best --load_path best -test_only
+#       python3 main.py --dataset emo_aff --models linearsvm  --feats ngram  --split_ratio 0.7 --test_ratio 0.3 --load_path emo.model -test_only
+
+# [News Category]
+# 1. Train
+#       python3 main.py --dataset news_cat --models lr linearsvm gnb --feats bow ngram tfidf --split_ratio 0.02 --test_ratio 0.05 --save_path news.model
+# 2. Test
+#       python3 main.py --dataset news_cat --models lr --feats ngram --split_ratio 0.1 --test_ratio 0.2 --load_path news.model -test_only
+
