@@ -49,7 +49,6 @@ class DenseTransformer(TransformerMixin):
 
 """
 #TODO:
-- Add capability to save best model found during training
 - Grid search for hyperparameters
 """
 class Trainer:
@@ -64,7 +63,7 @@ class Trainer:
         - results = trainer.evaluate()
     """
     #TODO: Pass dataset object here instead of data dict
-    #TO-DO: the config and log_name as arguments?
+    #TODO: the config and log_name as arguments?
     def __init__(self, dataset, models, transforms, cfg=Config(), log_name='logs.txt'):
         self.pipelines = {}
         self.models = models
@@ -120,7 +119,7 @@ class Trainer:
         Add a pipeline object with given transform and model
         """
         tranform_params = transform_params[transform]
-        print('transform params: ', transform_params)
+        #print('transform params: ', transform_params)
         transform_obj = transform_class_map[transform](**tranform_params)
         model_obj = model_class_map[model]()
         # Fix the "to dense" bug "fit" requires dense input
@@ -153,7 +152,7 @@ class Trainer:
 
     def save_model(self, model, transform, model_path):
         """
-        Save a specific model to the path : "model_path"
+        Save a specific model and transformation to the path : "model_path"
         """
         if model not in self.pipelines:
             raise Exception("{} doesn't exist in pipelines".format(model))
@@ -170,17 +169,20 @@ class Trainer:
         self.logger.info(', '.join("%s: %s" % item for item in vars(self.cfg).items()))
 
     # TODO: Won't work for multiple transforms - needs fix
-    def load_model(self, model, model_path):
+    # Fixed: now includes feature transformation vectorizer
+    def load_model(self, model, transform, model_path):
         """
-        Load a specific model from the path : "model_path"
+        Load a specific model with transformation from the path : "model_path"
         """
         if model not in self.pipelines:
             raise Exception("{} doesn't exist in models".format(model))
+        if transform not in self.pipelines[model]:
+            raise Exception("{} transformation doesn't exist in pipelines".format(transform))
         #It uses the configuration to find the model directory
         #Config should be somewhere called to see the folder path
         file_path = os.path.join(self.cfg.model_dir,model_path)
         with open(file_path, 'rb') as file:
-            self.pipelines[model] = pickle.load(file)
+            self.pipelines[model][transform] = pickle.load(file)
 
         # Tell what the loading configuration looks like
         self.logger.info("Loading from this configuration:")

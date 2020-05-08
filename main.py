@@ -36,16 +36,26 @@ config = Config(dataset=args.dataset,
                 test=args.test_only)
 
 trainer = Trainer(dataset=dataset, models=args.models, transforms=args.feats, cfg=config)
+# If we only want to test
+if args.test_only:
+    trainer.load_model(args.models[0], args.feats[0], args.load_path)
+
 # Train
-trainer.train()
+if not(args.test_only):
+    trainer.train()
 # Test
 metrics = trainer.evaluate()
 # Save best
-trainer.save_best(metrics)
-print("Test result (simul) : ")
-print(metrics)
-print("Simultaneously training done")
-print("==================================\n\n\n\n\n\n\n\n\n\n")
+if not(args.test_only):
+    trainer.save_best(metrics)
+    print("Simultaneously training done")
+else:
+    print("Test result : ")
+    print(metrics)
+    trainer.logger.info(metrics)
 
 # Sample Usage:
-# python3 main.py --dataset emo_aff --models lr linearsvm gnb --feats bow ngram tfidf --split_ratio 0.8 --test_ratio 0.1 --save_path best
+# 1. Train
+#       python3 main.py --dataset emo_aff --models lr linearsvm gnb --feats bow ngram tfidf --split_ratio 0.8 --test_ratio 0.1 --save_path best
+# 2. Test
+#       python3 main.py --dataset emo_aff --models linearsvm  --feats ngram  --split_ratio 0.7 --test_ratio 0.3 --save_path best --load_path best -test_only
