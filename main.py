@@ -26,15 +26,7 @@ args = argparser()
 # Create the dataset class object
 dataset = dataset_map[args.dataset]()
 dataset.split_data(train_size=args.split_ratio,test_size=args.test_ratio)
-data_inp = {'X_train': dataset.train_data['X'], 'y_train': dataset.train_data['y'], 'X_val': dataset.test_data['X'], 'y_val': dataset.test_data['y']}
-# The above step takes care of reading the dataset
-# and splitting it
 
-# The declaration for the best precision and the best configuration
-best_precision = 0.0
-best_config = Config()
-
-# Simultaneous train
 config = Config(dataset=args.dataset,
                 model=args.models,
                 feats=args.feats,
@@ -42,6 +34,7 @@ config = Config(dataset=args.dataset,
                 continue_train=args.continue_train,
                 load_path=args.load_path,
                 test=args.test_only)
+
 trainer = Trainer(dataset=dataset, models=args.models, transforms=args.feats, cfg=config)
 # Train
 trainer.train()
@@ -54,3 +47,5 @@ print(metrics)
 print("Simultaneously training done")
 print("==================================\n\n\n\n\n\n\n\n\n\n")
 
+# Sample Usage:
+# python3 main.py --dataset emo_aff --models lr linearsvm gnb --feats bow ngram tfidf --split_ratio 0.8 --test_ratio 0.1 --save_path best

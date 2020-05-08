@@ -189,3 +189,25 @@ trainer.logger.info(['The best model configuration is ', ', '.join("%s: %s" % it
 #python3 main.py --dataset news_cat --models lr linearsvm --feats bow word2vec  --split_ratio 0.005 --test_ratio 0.01 --save_path best
 
 #python3 main.py --dataset emo_aff --models lr --feats bow ngram tfidf --split_ratio 0.005 --test_ratio 0.2 --save_path best
+
+
+
+
+
+
+
+
+
+#data_inp = {'X_train': dataset.train_data['X'], 'y_train': dataset.train_data['y'], 'X_val': dataset.test_data['X'], 'y_val': dataset.test_data['y']}
+# The above step takes care of reading the dataset
+# and splitting it
+
+
+
+# The declaration for the best precision and the best configuration
+#best_precision = 0.0
+#best_config = Config()
+
+
+
+

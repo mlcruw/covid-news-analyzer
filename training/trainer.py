@@ -139,7 +139,6 @@ class Trainer:
                 X_train, y_train = self.get_train_data()
                 print("Training {} with {} transformation".format(model, transform))
                 self.logger.info("Training {} with {} transformation".format(model, transform))
-                #Need to fix: TypeError: A sparse matrix was passed, but dense data is required. Use X.toarray() to convert to a dense numpy array.
                 pipeline_obj.fit(X_train, y_train)
 
     def train_model(self, model):
