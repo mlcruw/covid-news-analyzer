@@ -3,6 +3,7 @@ import os
 from copy import copy
 import numpy as np
 import pandas as pd
+from sklearn.base import TransformerMixin
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.svm import SVC, LinearSVC
 from sklearn.linear_model import LogisticRegression
@@ -36,6 +37,15 @@ transform_params = {
         'analyzer':'char_wb', 'ngram_range':(5, 5)
     }
 }
+
+# Important: TypeError: A sparse matrix was passed, but dense data is required. Use X.toarray() to convert to a dense numpy array.
+
+class DenseTransformer(TransformerMixin):
+    def fit(self, X, y=None, **fit_params):
+        return self
+    
+    def transform(self, X, y=None, **fit_params):
+        return X.todense()
 
 """
 #TODO:
@@ -110,9 +120,13 @@ class Trainer:
         Add a pipeline object with given transform and model
         """
         tranform_params = transform_params[transform]
+        print('transform params: ', transform_params)
         transform_obj = transform_class_map[transform](**tranform_params)
         model_obj = model_class_map[model]()
-        steps = [('tranform', transform_obj),('model', model_obj)]
+        # Fix the "to dense" bug "fit" requires dense input
+        steps = [('tranform', transform_obj),
+                 ('to_dense', DenseTransformer()),
+                 ('model', model_obj)]
         self.pipelines[model][transform] = Pipeline(steps, verbose=True)
 
     def train(self):
@@ -125,6 +139,7 @@ class Trainer:
                 X_train, y_train = self.get_train_data()
                 print("Training {} with {} transformation".format(model, transform))
                 self.logger.info("Training {} with {} transformation".format(model, transform))
+                #Need to fix: TypeError: A sparse matrix was passed, but dense data is required. Use X.toarray() to convert to a dense numpy array.
                 pipeline_obj.fit(X_train, y_train)
 
     def train_model(self, model):
@@ -194,6 +209,30 @@ class Trainer:
                 }
                 metrics.append(metric_dict)
         return pd.DataFrame(metrics)
+
+    def save_best(self, metrics):
+        """
+        Save the best model to the path : "model_path"
+        """
+        best_precision = 0.0
+        best_row = 0
+        best_config = self.cfg
+        for row in range(len(metrics)):
+            if metrics.iloc[row]['precision'] > metrics.iloc[best_row]['precision']:
+                best_row = row
+        best_config.model = metrics.iloc[best_row]['model']
+        best_config.feats = metrics.iloc[best_row]['transform']
+        best_precision = metrics.iloc[best_row]['precision']
+            
+        # Output the best model precision and configuration
+        self.logger.info(['The best model precision is %.2f ' % best_precision])
+        self.logger.info(['The best model is %s ' % best_config.model])
+        self.logger.info(['The best feature transformation is %s ' % best_config.feats])
+        self.logger.info(['The best model configuration is ', ', '.join("%s: %s" % item for item in vars(best_config).items())])
+        self.logger.info(metrics)
+        # Save model to file
+        self.save_model(metrics.iloc[best_row]['model'], metrics.iloc[best_row]['transform'], self.cfg.save_path)
+        self.logger.info('Saving done')
 
 if __name__=='__main__':
     """

@@ -34,75 +34,23 @@ data_inp = {'X_train': dataset.train_data['X'], 'y_train': dataset.train_data['y
 best_precision = 0.0
 best_config = Config()
 
-for model in args.models:
-  # TODO: include for feat in args.feats here later
+# Simultaneous train
+config = Config(dataset=args.dataset,
+                model=args.models,
+                feats=args.feats,
+                save_path=args.save_path,
+                continue_train=args.continue_train,
+                load_path=args.load_path,
+                test=args.test_only)
+trainer = Trainer(dataset=dataset, models=args.models, transforms=args.feats, cfg=config)
+# Train
+trainer.train()
+# Test
+metrics = trainer.evaluate()
+# Save best
+trainer.save_best(metrics)
+print("Test result (simul) : ")
+print(metrics)
+print("Simultaneously training done")
+print("==================================\n\n\n\n\n\n\n\n\n\n")
 
-  # Idea is to have a one-to-one mapping between
-  # Trainer object and Config object.
-  # When saving model in Trainer obj, we could save
-  # its corresponding Config object too
-
-  #Note below the usage of [feat] and [model]
-  #Added feature selection 
-  for feat in args.feats:
-      config = Config(dataset=args.dataset,
-                  model=model,
-                  feats=[feat],
-                  save_path=args.save_path,
-                  continue_train=args.continue_train,
-                  load_path=args.load_path,
-                  test=args.test_only)
-      # print("Configuration:")
-      # print(', '.join("%s: %s" % item for item in vars(config).items()))
-
-      # TODO:
-      # - writing everything as pandas dataframe - any downsides?
-      # - trainer class
-      #   - also create a one-to-one map between Train and Config objects
-      # - metrics
-      # - save model
-      # - modify preprocessor function to use pd.series
-
-      # TODO: passing the config object to trainer?
-      # If not passed here, do not comment "import config" in trainer otherwise it does not know the folder path for loading and saving models
-
-      # When calling like this, the mapping from Train and Config is already one-to-one?
-      trainer = Trainer(data=data_inp, models=[model], transforms=[feat], cfg=config)
-      #1. If continue train from a saved model
-      #... example usage of continue_train
-      #........python3 main.py --dataset news_cat --models lr --feats bow --split_ratio 0.02 --test_ratio 0.01 --load_path bow_0 --save_path bow_1 -c
-      #... example usage of test_only (test PHASE)
-      #........python3 main.py --dataset news_cat --models lr --feats bow --split_ratio 0.003 --test_ratio 0.01 --load_path bow_0 -test_only
-      if args.continue_train or args.test_only:
-         #TO-DO: it can log sth. like "continue training from" or "testing on"
-         trainer.load_model(model, args.load_path)
-      
-      #2. train
-      if not(args.test_only):
-         trainer.train()
-
-      #3. Metrics evaluation
-      metrics = trainer.evaluate()
-      print(metrics)
-
-      #4. Update the best acc and config
-      if metrics.iloc[0]['precision'] > best_precision:
-         best_precision = metrics.iloc[0]['precision']
-         best_config = config
-
-      #5. Of course output the evaluation result
-      trainer.logger.info('The evaluation result is')
-      trainer.logger.info(metrics.to_string())
-
-      #6. save model
-      if not(args.test_only):
-         trainer.save_model(model, feat, args.save_path)
-
-#Output the best model precision and configuration
-trainer.logger.info(['The best model precision is %.2f ' % best_precision])
-trainer.logger.info(['The best model configuration is ', ', '.join("%s: %s" % item for item in vars(best_config).items())])
-
-#Sample usage:
-#python3 main.py --dataset news_cat --models lr linearsvm --feats bow word2vec  --split_ratio 0.005 --test_ratio 0.01 --save_path best
-
-#python3 main.py --dataset emo_aff --models lr --feats bow ngram tfidf --split_ratio 0.005 --test_ratio 0.2 --save_path best

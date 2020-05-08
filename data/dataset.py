@@ -96,20 +96,8 @@ class Dataset:
   # Split data test_ratio is for debugging cuz the whole dataset is too large
   # Add train_size because train_test_split(test_size) is not what intended. The intention is that the first like 1,000 samples are train and the following 100 is test o.w. the program might crash on jupyter lab or some other simple environments.
   def split_data(self, train_size, test_size):
-    self.train_data, self.test_data = train_test_split(self.data, train_size = train_size, test_size=test_size)
+    self.train_data, self.test_data = train_test_split(self.data, train_size = train_size, test_size=test_size, shuffle=False)
 
-  # Split data test_ratio is for debugging cuz the whole dataset is too large
-  #def split_data(self, test_size):
-  #  self.train_data, self.test_data = train_test_split(self.data, test_size=test_size)
-    
-  # The original one
-  #def split_data(self, train_split, test_ratio):
-  #  num_samples = len(self.data.index)
-  #  num_train_samples = int(train_split * num_samples)
-  #  num_test_samples = (num_samples - num_train_samples) if test_ratio == 0.0 else int(test_ratio * num_samples)
-  #  print("Spliting the data : %d - %d is train, %d - %d is test" % (0, num_train_samples - 1, num_train_samples, num_train_samples + num_test_samples - 1))
-  #  self.train_data = self.data.iloc[:num_train_samples, :]
-  #  self.test_data = self.data.iloc[num_train_samples: num_train_samples + num_test_samples, :]
     
   # Print string for class object
   def __str__(self):
