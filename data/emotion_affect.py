@@ -14,11 +14,11 @@ class EmotionAffectDataset(Dataset):
   
   emotion_class_dict =
   {
-      0: 'angry',
+      0: 'angry-disgusted',
       1: 'fearful',
       2: 'happy',
       4: 'sad',
-      5: 'suprised'
+      5: 'surprised'
   }
   
   # class constructor
