@@ -43,7 +43,7 @@ transform_params = {
 class DenseTransformer(TransformerMixin):
     def fit(self, X, y=None, **fit_params):
         return self
-    
+
     def transform(self, X, y=None, **fit_params):
         return X.todense()
 
@@ -224,7 +224,7 @@ class Trainer:
         best_config.model = metrics.iloc[best_row]['model']
         best_config.feats = metrics.iloc[best_row]['transform']
         best_precision = metrics.iloc[best_row]['precision']
-            
+
         # Output the best model precision and configuration
         self.logger.info(['The best model precision is %.2f ' % best_precision])
         self.logger.info(['The best model is %s ' % best_config.model])

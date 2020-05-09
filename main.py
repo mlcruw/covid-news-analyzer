@@ -25,9 +25,11 @@ args = argparser()
 
 # Create the dataset class object
 dataset = dataset_map[args.dataset]()
-dataset.split_data(train_size=args.split_ratio,test_size=args.test_ratio)
-# The above step takes care of reading the dataset
-# and splitting it
+
+# Split the data
+dataset.split_data(
+  train_size=args.split_ratio,
+  test_size=args.test_ratio)
 
 config = Config(dataset=args.dataset,
                 model=args.models,

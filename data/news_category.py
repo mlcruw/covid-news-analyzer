@@ -28,7 +28,8 @@ class NewsCategoryDataset(Dataset):
     self.read_data()
 
     # self.standardize_data()
-    # self.split_data()
+
+    self.save_label_encoder()
 
 
   # Download the dataset
@@ -38,7 +39,7 @@ class NewsCategoryDataset(Dataset):
 
   # Read data from files
   def read_data(self):
-    print("Reading data...")
+    print("\nReading data...")
     with open(self.dataset_dir + '/News_Category_Dataset_v2.json', 'r') as f:
       # Read raw data into pandas dataframe
       raw_data = pd.read_json(f, lines=True)

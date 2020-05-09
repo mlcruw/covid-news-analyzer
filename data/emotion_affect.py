@@ -5,22 +5,19 @@ import json
 from .dataset import Dataset
 from sklearn.preprocessing import LabelEncoder
 
-# TODO:
-
 
 class EmotionAffectDataset(Dataset):
-  #TODO: change the name of this dataset
+  # TODO: change the name of this dataset
   name = "Emotion Affect Dataset"
-  
-  emotion_class_dict =
-  {
-      0: 'angry-disgusted',
-      1: 'fearful',
-      2: 'happy',
-      4: 'sad',
-      5: 'surprised'
+
+  emotion_class_dict = {
+    0: 'angry-disgusted',
+    1: 'fearful',
+    2: 'happy',
+    4: 'sad',
+    5: 'surprised'
   }
-  
+
   # class constructor
   def __init__(self):
     super().__init__()
@@ -28,7 +25,7 @@ class EmotionAffectDataset(Dataset):
     self.dirname = 'emotion_affect_dataset'
 
     # Download the dataset to dirname using cmd
-    #self.download_data()
+    # self.download_data()
 
     # Read data from dirname
     # Note: this is different for different datasets
@@ -64,11 +61,11 @@ class EmotionAffectDataset(Dataset):
           emo_ind.append(int(line[0])) #sentence_id
           emo_class.append(int(line[1]) - 1) #2-7 in raw data (Note class 5 in raw is missing) -> make it 0-5
           emo_text.append(line[2]) #the last char is '\n'
-      proc_data = {'X': emo_text, 'y': emo_class, 'index': emo_ind}   
-      
+      proc_data = {'X': emo_text, 'y': emo_class, 'index': emo_ind}
+
       # Create a new pandas dataframe from raw_data columns
       data = pd.DataFrame(proc_data)
-        
+
       self.data = data
       print(len(self.data.index))
 

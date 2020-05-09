@@ -1,7 +1,12 @@
 import glob
 import zipfile
-import pandas
+import numpy as np
+import pandas as pd
 from .dataset import Dataset
+
+# FIXME:
+# - test_data.y has NaNs filled in it. Since dataset was downloaded from kaggle
+#   don't know test_data labels
 
 
 class FakeNewsDataset(Dataset):
@@ -32,19 +37,31 @@ class FakeNewsDataset(Dataset):
 
   # Read data from files
   def read_data(self):
-    print("Reading data...")
-    self.train_data = pandas.read_csv(self.dataset_dir + "/train.csv", sep=",")
-    self.test_data = pandas.read_csv(self.dataset_dir + "/test.csv", sep=",")
+    print("\nReading data...")
+    train_raw_data = pd.read_csv(self.dataset_dir + "/train.csv", sep=",")
+    test_raw_data = pd.read_csv(self.dataset_dir + "/test.csv", sep=",")
+
+    self.raw_data = pd.concat([train_raw_data, test_raw_data])
+
+    self.train_data = pd.DataFrame()
+    self.train_data['X'] = train_raw_data.title + train_raw_data.text
+    self.train_data['y'] = train_raw_data.label
+
+    self.test_data = pd.DataFrame()
+    self.test_data['X'] = test_raw_data.title + test_raw_data.text
+    self.test_data['y'] = pd.Series(np.nan, index=np.arange(len(test_raw_data.index)))
+
+    # self.data = pd.concat([self.train_data, self.test_data])
+
     print("Done")
 
-  def split_data(self, **args):
+
+  # Split data
+  def split_data(self, **kwargs):
+    # Don't split data again, it's already split
     pass
+
 
   # Standardize data
   def standardize_data(self):
     raise NotImplementedError("StanSent standardize_data method doesn't exist!")
-
-
-  # Print string for class object
-  def __str__(self):
-    return self.__class__.name
