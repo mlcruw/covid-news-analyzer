@@ -11,7 +11,16 @@ from sklearn.preprocessing import LabelEncoder
 class EmotionAffectDataset(Dataset):
   #TODO: change the name of this dataset
   name = "Emotion Affect Dataset"
-
+  
+  emotion_class_dict =
+  {
+      0: 'angry',
+      1: 'fearful',
+      2: 'happy',
+      4: 'sad',
+      5: 'suprised'
+  }
+  
   # class constructor
   def __init__(self):
     super().__init__()
@@ -48,11 +57,12 @@ class EmotionAffectDataset(Dataset):
       emo_text = []
       emo_ind = []
       for line in s:
+          # Skip lines with odd prefix like "he_tale_of" or "the_tale_of"
           if line.find('@') == -1:
             continue
-          line = line.split('@') #the raw data has @ which is not , it is possible to transform to csv file but there are some lines starting with the_tale_of which is useless
+          line = line.split('@') #the raw data has @ which is not "," it is possible to transform to csv file but there are some lines starting with the_tale_of which is useless
           emo_ind.append(int(line[0])) #sentence_id
-          emo_class.append(int(line[1]) - 1) #2-7 in raw data -> make it 1-6
+          emo_class.append(int(line[1]) - 1) #2-7 in raw data (Note class 5 in raw is missing) -> make it 0-5
           emo_text.append(line[2]) #the last char is '\n'
       proc_data = {'X': emo_text, 'y': emo_class, 'index': emo_ind}   
       
