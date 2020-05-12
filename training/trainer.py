@@ -61,10 +61,7 @@ class DenseTransformer(TransformerMixin):
     def transform(self, X, y=None, **fit_params):
         return X.todense()
 
-"""
-#TODO:
-- Grid search for hyperparameters
-"""
+
 class Trainer:
     """
     Runs a cross product of feature transformations + models on the given
@@ -76,7 +73,6 @@ class Trainer:
         - traner.train()
         - results = trainer.evaluate()
     """
-    #TODO: Pass dataset object here instead of data dict
     #TODO: the config and log_name as arguments?
     def __init__(self, dataset, models, transforms, cfg=Config(), log_name='logs.txt'):
         self.pipelines = {}
