@@ -1,5 +1,10 @@
-pandas
-ipython
-gensim
-scikit-learn
-nltk
+newspaper3k==0.2.8
+nltk==3.4.5
+numpy==1.18.1
+Flask==1.1.2
+pandas==1.0.1
+requests==2.23.0
+gensim==3.8.0
+newspaper==0.1.0.7
+scikit_learn==0.23.0
+xgboost==1.0.2
