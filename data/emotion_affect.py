@@ -59,7 +59,7 @@ class EmotionAffectDataset(Dataset):
             continue
           line = line.split('@') #the raw data has @ which is not "," it is possible to transform to csv file but there are some lines starting with the_tale_of which is useless
           emo_ind.append(int(line[0])) #sentence_id
-          emo_class.append(int(line[1]) - 1) #2-7 in raw data (Note class 5 in raw is missing) -> make it 0-5
+          emo_class.append(int(line[1]) - 2) #2-7 in raw data (Note class 5 in raw is missing) -> make it 0-5
           emo_text.append(line[2]) #the last char is '\n'
       proc_data = {'X': emo_text, 'y': emo_class, 'index': emo_ind}
 
