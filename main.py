@@ -28,7 +28,7 @@ dataset = dataset_map[args.dataset]()
 
 # Split the data
 dataset.split_data(
-  train_size=args.split_ratio,
+  dataset_ratio=args.split_ratio,
   test_size=args.test_ratio)
 
 config = Config(dataset=args.dataset,
@@ -48,7 +48,11 @@ if args.test_only:
 if not(args.test_only):
     trainer.train()
 # Get the evaluation metric
-metrics = trainer.evaluate()
+# If test only GridSearchCV is not fitted yet -> so set grid to False
+if args.test_only:
+    metrics = trainer.evaluate(grid=False)
+else:
+    metrics = trainer.evaluate()
 # Save best
 if not(args.test_only):
     trainer.save_best(metrics)
@@ -57,7 +61,7 @@ else:
     print("Test result : ")
     print(metrics)
     trainer.logger.info(metrics)
-s
+
 # Sample Usage:
 # [Emotion]
 # 1. Train
@@ -65,9 +69,24 @@ s
 # 2. Test
 #       python3 main.py --dataset emo_aff --models linearsvm  --feats ngram  --split_ratio 0.7 --test_ratio 0.3 --load_path emo.model -test_only
 
+# python3 main.py --dataset emo_aff --models lr --feats bow --split_ratio 0.8 --test_ratio 0.1 --save_path emo.model
+
 # [News Category]
 # 1. Train
 #       python3 main.py --dataset news_cat --models lr linearsvm gnb --feats bow ngram tfidf --split_ratio 0.02 --test_ratio 0.05 --save_path news.model
 # 2. Test
 #       python3 main.py --dataset news_cat --models lr --feats ngram --split_ratio 0.1 --test_ratio 0.2 --load_path news.model -test_only
 
+# python3 main.py --dataset news_cat --models lr --feats bow --split_ratio 0.02 --test_ratio 0.05 --save_path news.model
+
+# [Fake News]
+# 1. Train
+#       python3 main.py --dataset fake_news --models lr --feats bow --split_ratio 0.001 --test_ratio 0.001 --save_path fake.model
+# 2. Test
+#.      python3 main.py --dataset fake_news --models lr --feats bow --split_ratio 0.002 --test_ratio 0.005 --load_path fake.model -test_only
+
+# [Stanford Sentiment]
+# 1. Train
+#       python3 main.py --dataset stan_sent --models lr --feats bow --split_ratio 0.01 --test_ratio 0.01 --save_path stan.model
+# 2. Test
+#       python3 main.py --dataset stan_sent --models lr --feats bow --split_ratio 0.1 --test_ratio 0.02 --load_path stan.model -test_only

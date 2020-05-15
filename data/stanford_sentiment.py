@@ -50,23 +50,29 @@ class StanfordSentimentDataset(Dataset):
 
     data = pd.DataFrame()
 
-    self.train_data = pd.DataFrame()
-    self.train_data['X'] = train_raw_data.Phrase
-    self.train_data['y'] = train_raw_data.Sentiment
+    #self.train_data = pd.DataFrame()
+    #self.train_data['X'] = train_raw_data.Phrase
+    #self.train_data['y'] = train_raw_data.Sentiment
 
-    self.test_data = pd.DataFrame()
-    self.test_data['X'] = test_raw_data.Phrase
-    self.test_data['y'] = pd.Series(np.nan, index=np.arange(len(test_raw_data.index)))
-
+    #self.test_data = pd.DataFrame()
+    #self.test_data['X'] = test_raw_data.Phrase
+    #self.test_data['y'] = pd.Series(np.nan, index=np.arange(len(test_raw_data.index)))
+    
+    # Dataset is too large, use base class Dataset's train/split, o.w. the process will be killed by the terminal
+    # Use "data" instead
+    
+    data['X'] = self.raw_data.Phrase
+    data['y'] = self.raw_data.Sentiment
+    self.data = data
     # self.data = pd.concat([self.train_data, self.test_data])
 
     print("Done")
 
 
   # Split data
-  def split_data(self, **kwargs):
-    # Don't split data again, it's already split
-    pass
+  #def split_data(self, **kwargs):
+  #  # Don't split data again, it's already split
+  #  pass
 
 
   # Standardize data
