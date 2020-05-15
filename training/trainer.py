@@ -7,9 +7,12 @@ from sklearn.base import TransformerMixin
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.svm import SVC, LinearSVC
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from xgboost import XGBClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import precision_score, accuracy_score
 #Do not comment as it contains the default configuration for trainer, see parameter for __init__ below
 from training.config import Config
 from data.feature_extraction import FeatureExtractor
@@ -19,8 +22,19 @@ from utils.logger import colorlogger
 
 
 model_class_map = {
-    'gnb': GaussianNB, 'mnb': MultinomialNB,
-    'svm': SVC, 'lr': LogisticRegression, 'linearsvm': LinearSVC
+    'gnb': GaussianNB, 'mnb': MultinomialNB, 'svm': SVC,
+    'lr': LogisticRegression, 'linearsvm': LinearSVC, 'xgb': XGBClassifier,
+    'rf': RandomForestClassifier, 'ada': AdaBoostClassifier
+}
+
+model_params = {
+    'svm': {'C': [1e-2, 1e-1, 1, 10], 'kernel': ['linearl', 'poly', 'rbf']},
+    'lr': {'C': [1e-2, 1e-1, 1, 10]},
+    'rf': {'max_depth': [None, 10, 20, 50], 'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 5]},
+    'ada': {'n_estimators': [20, 40, 50, 75, 100]},
+    'xgb': {'eta': [0.1, 0.3, 0.5], 'max_depth': [4, 6, 8],
+        'lambda': [1e-2, 1e-1, 1]}
 }
 
 transform_class_map = {
@@ -30,11 +44,11 @@ transform_class_map = {
 }
 
 transform_params = {
-    'bow': {'stop_words':'english', 'min_df':5},
-    'tfidf': {'stop_words':'english', 'min_df':5},
+    'bow': {'stop_words': 'english', 'min_df': 5},
+    'tfidf': {'stop_words': 'english', 'min_df': 5},
     'ngram': {
-        'stop_words':'english', 'min_df':5,
-        'analyzer':'char_wb', 'ngram_range':(5, 5)
+        'stop_words': 'english', 'min_df': 5,
+        'analyzer': 'char_wb', 'ngram_range': (1, 3)
     }
 }
 
@@ -43,14 +57,11 @@ transform_params = {
 class DenseTransformer(TransformerMixin):
     def fit(self, X, y=None, **fit_params):
         return self
-    
+
     def transform(self, X, y=None, **fit_params):
         return X.todense()
 
-"""
-#TODO:
-- Grid search for hyperparameters
-"""
+
 class Trainer:
     """
     Runs a cross product of feature transformations + models on the given
@@ -62,14 +73,15 @@ class Trainer:
         - traner.train()
         - results = trainer.evaluate()
     """
-    #TODO: Pass dataset object here instead of data dict
     #TODO: the config and log_name as arguments?
     def __init__(self, dataset, models, transforms, cfg=Config(), log_name='logs.txt'):
         self.pipelines = {}
+        self.gridsearch = {}
         self.models = models
         self.transforms = transforms
         self.dataset = dataset
         self.init_pipelines(models, transforms)
+        self.init_gridsearch()
         # The current configuration for this trainer object
         self.cfg = cfg
         # The logger to saving (potentially) the config object and other stuff
@@ -98,7 +110,7 @@ class Trainer:
         """
         Returns X_test, y_test
         """
-        return self.dataset.train_data['X'], self.dataset.train_data['y']
+        return self.dataset.train_data['X'].values, self.dataset.train_data['y'].values
 
     def init_pipelines(self, models, transforms):
         """
@@ -128,17 +140,49 @@ class Trainer:
                  ('model', model_obj)]
         self.pipelines[model][transform] = Pipeline(steps, verbose=True)
 
-    def train(self):
+    def get_param_grid(self, model, transform):
+        if model not in model_params:
+            # Use default params in param_grid for consistency with other models
+            model_obj = self.pipelines[model][transform].named_steps['model']
+            param_grid = {'model__' + k: [v] for k, v in model_obj.get_params().items()}
+        else:
+            param_grid = {}
+            for param in model_params[model]:
+                pname = 'model__{}'.format(param)
+                pval = model_params[model][param]
+                param_grid[pname] = pval
+        return param_grid
+
+    def init_gridsearch(self, n_jobs=-1):
         """
-        Train all the models on training data
+        Setup GridSearchCV over the pipeline objects for hyperparamter tuning
         """
         for model in self.pipelines:
+            self.gridsearch[model] = {}
             for transform in self.pipelines[model]:
-                pipeline_obj = self.pipelines[model][transform]
+                param_grid = self.get_param_grid(model, transform)
+                search = GridSearchCV(self.pipelines[model][transform], param_grid, n_jobs=n_jobs)
+                self.gridsearch[model][transform] = search
+
+    def train(self, grid=True):
+        """
+        Train all the models on training data with optional gridsearch
+
+        Args:
+            - grid (bool), default=True: If True, runs GridSearch over hyperparams
+        """
+        if grid:
+            model_dict = self.gridsearch
+        else:
+            model_dict = self.pipelines
+
+        for model in model_dict:
+            for transform in model_dict[model]:
+                model_obj = model_dict[model][transform]
                 X_train, y_train = self.get_train_data()
                 print("Training {} with {} transformation".format(model, transform))
                 self.logger.info("Training {} with {} transformation".format(model, transform))
-                pipeline_obj.fit(X_train, y_train)
+                model_obj.fit(X_train, y_train)
 
     def train_model(self, model):
         """
@@ -150,9 +194,12 @@ class Trainer:
             X_train, y_train = self.get_train_data()
             self.pipelines[model][transform].fit(X_train, y_train)
 
-    def save_model(self, model, transform, model_path):
+    def save_model(self, model, transform, model_path, grid=True):
         """
         Save a specific model and transformation to the path : "model_path"
+
+        Args:
+            - grid (bool), default=True: If True, saves the best_estimator from GridSearch
         """
         if model not in self.pipelines:
             raise Exception("{} doesn't exist in pipelines".format(model))
@@ -162,14 +209,16 @@ class Trainer:
         #Config should be imported somehow so that it knows where the folder is
         file_path = os.path.join(self.cfg.model_dir,model_path)
         with open(file_path, 'wb') as fw:
-            pickle.dump(self.pipelines[model][transform], fw)
+            if grid:
+                model_obj = self.gridsearch[model][transform].best_estimator_
+            else:
+                model_obj = self.pipelines[model][transform]
+            pickle.dump(model_obj, fw)
 
         # Output the associated config object to log
         self.logger.info("Saving configuration:")
         self.logger.info(', '.join("%s: %s" % item for item in vars(self.cfg).items()))
 
-    # TODO: Won't work for multiple transforms - needs fix
-    # Fixed: now includes feature transformation vectorizer
     def load_model(self, model, transform, model_path):
         """
         Load a specific model with transformation from the path : "model_path"
@@ -188,32 +237,43 @@ class Trainer:
         self.logger.info("Loading from this configuration:")
         self.logger.info(', '.join("%s: %s" % item for item in vars(self.cfg).items()))
 
-    def evaluate(self):
+    def evaluate(self, grid=True):
         """
         Evaluate all the models on validation data and return metrics
         stored in a pandas DataFrame
+
+        Args:
+            - grid (bool), default=True: If True, uses the best_estimator from GridSearch
         """
+        if grid:
+            model_dict = self.gridsearch
+        else:
+            model_dict = self.pipelines
+
         metrics = []
-        for model in self.pipelines:
-            for transform in self.pipelines[model]:
-                pipeline_obj = self.pipelines[model][transform]
+        for model in model_dict:
+            for transform in model_dict[model]:
+                model_obj = model_dict[model][transform]
                 X_test, y_test = self.get_test_data()
-                y_pred = pipeline_obj.predict(X_test)
-                precision, recall, f1, _ = precision_recall_fscore_support(
-                    y_test, y_pred, average='micro')
+                y_pred = model_obj.predict(X_test)
+                precision = precision_score(y_test, y_pred, average='micro')
+                acc = accuracy_score(y_test, y_pred)
                 metric_dict = {
                     'model': model,
                     'transform': transform,
                     'precision': precision,
-                    'recall': recall,
-                    'f1-score': f1
+                    'accuracy': acc
                 }
                 metrics.append(metric_dict)
         return pd.DataFrame(metrics)
 
-    def save_best(self, metrics):
+    def save_best(self, metrics, save_path=None, grid=True):
         """
         Save the best model to the path : "model_path"
+
+        Args:
+            - save_path (str), default=cfg.save_path: The save path for the best model
+            - grid (bool), default=True: If True, saves the best_estimator from GridSearch
         """
         best_precision = 0.0
         best_row = 0
@@ -224,15 +284,20 @@ class Trainer:
         best_config.model = metrics.iloc[best_row]['model']
         best_config.feats = metrics.iloc[best_row]['transform']
         best_precision = metrics.iloc[best_row]['precision']
-            
+
         # Output the best model precision and configuration
         self.logger.info(['The best model precision is %.2f ' % best_precision])
         self.logger.info(['The best model is %s ' % best_config.model])
         self.logger.info(['The best feature transformation is %s ' % best_config.feats])
+        if grid:
+            best_config.params = self.gridsearch[best_config.model][best_config.feats].best_params_
+            self.logger.info(['The best parameters found via GridSearch are {}'.format(best_config.params)])
         self.logger.info(['The best model configuration is ', ', '.join("%s: %s" % item for item in vars(best_config).items())])
         self.logger.info(metrics)
         # Save model to file
-        self.save_model(metrics.iloc[best_row]['model'], metrics.iloc[best_row]['transform'], self.cfg.save_path)
+        if save_path is None:
+            save_path = self.cfg.save_path
+        self.save_model(metrics.iloc[best_row]['model'], metrics.iloc[best_row]['transform'], save_path, grid=grid)
         self.logger.info('Saving done')
 
 if __name__=='__main__':

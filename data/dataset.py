@@ -2,7 +2,9 @@ import os
 import glob
 import subprocess
 import zipfile
+import pickle
 from sklearn.model_selection import train_test_split
+
 
 # Base Dataset class
 class Dataset:
@@ -37,7 +39,7 @@ class Dataset:
 
 
   def download_data(self, dirname, cmd):
-    print("Downloading data to data/datasets/{0:} using the command:".format(dirname))
+    print("\nDownloading data to data/datasets/{0:} using the command:".format(dirname))
     print("  ", cmd)
 
     # Get the abs dir path of the current file dataset.py
@@ -85,15 +87,14 @@ class Dataset:
     # Return abs path to where dataset was downloaded
     self.dataset_dir = curr_dataset_dir
 
-  # Get data as a tuple
-  # Something like X_train, y_train, X_val, y_val
-  def get_data(self):
-    raise NotImplementedError("Base class method get_data not implemented!")
 
+  # Returns the size of the full dataset
   def get_size(self):
     return len(self.data.index)
 
-  # Datasize ratio is for debugging cuz the whole dataset is too large
+
+  # If dataset if large, one may use dataset_ratio to use only a fraction
+  # of the dataset
   def split_data(self, dataset_ratio=1.0, test_size=0.2):
     """
     Split the data into train and test splits
@@ -102,10 +103,19 @@ class Dataset:
       - dataset_ratio: ratio of dataset to use
       - test_size: proportion of data to use for testing
     """
-    data = self.data.iloc[:int(len(self.data)*dataset_ratio)]
+    print("\nSplitting data...")
+    data = self.data.iloc[:int(len(self.data.index)*dataset_ratio)]
     self.train_data, self.test_data = train_test_split(data, test_size=test_size, shuffle=False)
-    
+    print("Done")
+
+
   # Print string for class object
   def __str__(self):
     return self.__class__.name
-    
+
+
+  # If labels were encoded, call this method
+  # Saves label encoder object as a pickle file, inside dataset_dir
+  def save_label_encoder(self):
+    pickle.dump(self.label_encoder,
+                open(self.dataset_dir + "/" + "label_encoder.pickle", "wb"))

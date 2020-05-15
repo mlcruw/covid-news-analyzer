@@ -1,7 +1,12 @@
 import glob
 import zipfile
-import pandas
+import numpy as np
+import pandas as pd
 from .dataset import Dataset
+
+# FIXME:
+# - test_data.y has NaNs filled in it. Since dataset was downloaded from kaggle
+#   don't know test_data labels
 
 
 class StanfordSentimentDataset(Dataset):
@@ -37,13 +42,32 @@ class StanfordSentimentDataset(Dataset):
 
   # Read data from files
   def read_data(self):
-    print("Reading data...")
-    self.train_data = pandas.read_csv(self.dataset_dir + "/train.tsv", sep="\t")
-    self.test_data = pandas.read_csv(self.dataset_dir + "/test.tsv", sep="\t")
+    print("\nReading data...")
+    train_raw_data = pd.read_csv(self.dataset_dir + "/train.tsv", sep="\t")
+    test_raw_data = pd.read_csv(self.dataset_dir + "/test.tsv", sep="\t")
+
+    self.raw_data = pd.concat([train_raw_data, test_raw_data])
+
+    data = pd.DataFrame()
+
+    self.train_data = pd.DataFrame()
+    self.train_data['X'] = train_raw_data.Phrase
+    self.train_data['y'] = train_raw_data.Sentiment
+
+    self.test_data = pd.DataFrame()
+    self.test_data['X'] = test_raw_data.Phrase
+    self.test_data['y'] = pd.Series(np.nan, index=np.arange(len(test_raw_data.index)))
+
+    # self.data = pd.concat([self.train_data, self.test_data])
+
     print("Done")
 
+
+  # Split data
   def split_data(self, **kwargs):
+    # Don't split data again, it's already split
     pass
+
 
   # Standardize data
   def standardize_data(self):

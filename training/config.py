@@ -35,7 +35,8 @@ class Config:
                save_path='bow_0',
                continue_train=False,
                load_path=None,
-               test=None):
+               test=None,
+               params=None):
     self.dataset = dataset
     self.model = model
     self.feats = feats
@@ -43,6 +44,7 @@ class Config:
     self.continue_train = continue_train
     self.load_path = load_path
     self.test = test
+    self.params = params
 
 #Do not comment "cfg" as it is a global configuration object that will be called later.
 cfg = Config()
