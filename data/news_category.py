@@ -56,7 +56,8 @@ class NewsCategoryDataset(Dataset):
 
       # Create a new pandas dataframe from raw_data columns
       data = pd.DataFrame()
-      data['X'] = raw_data.headline + raw_data.short_description
+      # Could we insert one space between the title and text?
+      data['X'] = raw_data.headline + " " + raw_data.short_description
       data['y'] = le.transform(raw_data.category)
       self.data = data
 
