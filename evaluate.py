@@ -13,13 +13,14 @@ from data.fake_news import FakeNewsDataset
 
 # [IMPORTANT!!!!!!] Note some models require the entire article while others require the concatenation of headline title plus a separating space plus the body text. Make sure your modification aligns with those dataset classes.
 
-def eval_emotion(article_text):
+def eval_emotion(article_text, article_title):
     # Evaluate emotion
     #   Input: The article
     #   Output: 'angry-disgusted' etc.
     with open('output/model_dump/emo.model', 'rb') as f:
         loaded_pipeline = pickle.load(f)
     sentences = sent_tokenize(article_text)
+    sentences.append(article_title)
     pred_emotions = loaded_pipeline.predict(sentences)
     final_emotion = stats.mode(pred_emotions).mode[0]
     return EmotionAffectDataset.emotion_class_dict[final_emotion]
@@ -50,7 +51,7 @@ def eval_fake(article_title_n_text):
     pred_fake = loaded_pipeline.predict(article_title_n_text)
     return FakeNewsDataset.fake_class_dict[pred_fake[0]]
 
-def eval_sent(article_text):
+def eval_sent(article_text, article_title):
     # Evaluate sentiment
     #   Input: same as eval_emotion: the entire article
     #   Output: sentiment score 0-4
@@ -58,8 +59,9 @@ def eval_sent(article_text):
         loaded_pipeline = pickle.load(f)
     
     sentences = sent_tokenize(article_text)
+    sentences.append(article_title)
     pred_sent = loaded_pipeline.predict(sentences)
-    final_sent = stats.mode(pred_sent).mode[0]
+    final_sent = pred_sent.mean()
     return final_sent
 
 def evaluate_all(article_title, article_text):
@@ -71,10 +73,10 @@ def evaluate_all(article_title, article_text):
     
     # Special handling regarding title and text
     title_n_text = article_title + " " + article_text
-    pred_emotion = eval_emotion(article_text)
+    pred_emotion = eval_emotion(article_text, article_title)
     pred_category = eval_category([title_n_text]) #Don't delete []; required by sklearn
     pred_fake = eval_fake([title_n_text])
-    pred_sentiment = eval_sent(article_text)
+    pred_sentiment = eval_sent(article_text, article_title)
     return { "emotion": pred_emotion, "category": pred_category, "fake": pred_fake, "sentiment": pred_sentiment }
     
     
