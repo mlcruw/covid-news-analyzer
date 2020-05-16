@@ -62,6 +62,11 @@ def argparser():
                       '--save_data',
                       action='store_true',
                       help='when set, cleaned dataset will be saved')
+
+  parser.add_argument('-lc',
+                      '--load_clean',
+                      action='store_true',
+                      help='when set, cleaned dataset will be loaded')
   
   parser.add_argument('-sr',
                       '--save_results',

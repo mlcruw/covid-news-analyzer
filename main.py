@@ -23,14 +23,6 @@ args = argparser()
 # print("Command line arguments:")
 # print(args)
 
-# Create the dataset class object
-dataset = dataset_map[args.dataset]()
-
-# Split the data
-dataset.split_data(
-  dataset_ratio=args.split_ratio,
-  test_size=args.test_ratio)
-
 config = Config(dataset=args.dataset,
                 model=args.models,
                 feats=args.feats,
@@ -38,6 +30,25 @@ config = Config(dataset=args.dataset,
                 continue_train=args.continue_train,
                 load_path=args.load_path,
                 test=args.test_only)
+
+# Load clean data
+if args.load_clean:
+    print("Loading cleaned data")
+    # Create the dataset class object
+    dataset = dataset_map[args.dataset](do_clean=False)
+    data_path = os.path.join(config.model_dir, args.dataset+'_clean.csv')
+    if os.path.exists(data_path):
+        clean_data = pd.read_csv(data_path)
+        dataset.data = clean_data
+    print("Done")
+else:
+    print("Loading and cleaning data")
+    dataset = dataset_map[args.dataset](do_clean=True)
+
+# Split the data
+dataset.split_data(
+  dataset_ratio=args.split_ratio,
+  test_size=args.test_ratio)
 
 if args.save_data:
     print("Saving cleaned data")
@@ -109,13 +120,13 @@ else:
 
 # Final commands:
 # [Emotion]
-# python main.py --dataset emo_aff --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path emo.model --save_data --save_results
+# nohup python -u main.py --dataset emo_aff --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path emo.model --save_data --save_results > out_emo.txt &
 
 # [News Category]
-# python main.py --dataset news_cat --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path news.model --save_data --save_results
+# nohup python -u main.py --dataset news_cat --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path news.model --save_data --save_results > out_news.txt &
 
 # [Fake News]
-# python main.py --dataset fake_news --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path fake.model --save_data --save_results
+# nohup python -u main.py --dataset fake_news --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path fake.model --save_data --save_results > out_fake.txt &
 
 # [Stanford Sentiment]
-# python main.py --dataset stan_sent --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path stan.model --save_data --save_results
+# nohup python -u main.py --dataset stan_sent --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path stan.model --save_data --save_results > out_stan.txt &

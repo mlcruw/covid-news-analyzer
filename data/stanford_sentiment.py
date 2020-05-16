@@ -3,7 +3,6 @@ import zipfile
 import numpy as np
 import pandas as pd
 from .dataset import Dataset
-from .preprocessing import preprocess
 
 # FIXME:
 # - test_data.y has NaNs filled in it. Since dataset was downloaded from kaggle
@@ -63,8 +62,10 @@ class StanfordSentimentDataset(Dataset):
     # Use "data" instead
     
     data['X'] = self.raw_data.Phrase
-    # Preprocess the text
-    data['X'] = data['X'].apply(preprocess)
+
+    if self.do_clean:
+        # Preprocess the text
+        data = self.preprocess_text(data)
 
     data['y'] = self.raw_data.Sentiment
     self.data = data

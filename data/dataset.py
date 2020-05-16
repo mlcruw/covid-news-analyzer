@@ -3,13 +3,15 @@ import glob
 import subprocess
 import zipfile
 import pickle
+import swifter
 from sklearn.model_selection import train_test_split
+from .preprocessing import preprocess
 
 
 # Base Dataset class
 class Dataset:
   # Constructor for class Dataset
-  def __init__(self):
+  def __init__(self, do_clean=True):
     print("Training on", self.__str__())
 
     # Cmd (string) that downloads the dataset
@@ -36,6 +38,9 @@ class Dataset:
 
     # Stores test data after train/test split
     self.test_data = None
+
+    # Flag to determine whether to preprocess the data
+    self.do_clean = do_clean
 
 
   def download_data(self, dirname, cmd):
@@ -108,6 +113,10 @@ class Dataset:
     self.train_data, self.test_data = train_test_split(data, test_size=test_size, shuffle=False)
     print("Done")
 
+  def preprocess_text(self, data):
+    if self.do_clean:
+      data['X'] = data['X'].swifter.apply(preprocess)
+    return data
 
   # Print string for class object
   def __str__(self):

@@ -4,7 +4,6 @@ import pandas as pd
 import json
 from .dataset import Dataset
 from sklearn.preprocessing import LabelEncoder
-from .preprocessing import preprocess
 
 
 class EmotionAffectDataset(Dataset):
@@ -20,8 +19,8 @@ class EmotionAffectDataset(Dataset):
   }
 
   # class constructor
-  def __init__(self):
-    super().__init__()
+  def __init__(self, do_clean=True):
+    super().__init__(do_clean)
     #TODO: write code to download the data; it's not on kaggle
     self.dirname = 'emotion_affect_dataset'
 
@@ -67,8 +66,9 @@ class EmotionAffectDataset(Dataset):
       # Create a new pandas dataframe from raw_data columns
       data = pd.DataFrame(proc_data)
 
-      # Preprocess the text
-      data['X'] = data['X'].apply(preprocess)
+      if self.do_clean:
+        # Preprocess the text
+        data = self.preprocess_text(data)
 
       self.data = data
       print(len(self.data.index))

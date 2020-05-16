@@ -4,7 +4,6 @@ import pandas as pd
 import json
 from .dataset import Dataset
 from sklearn.preprocessing import LabelEncoder
-from .preprocessing import preprocess
 
 # TODO:
 # - figure out a good split fraction
@@ -15,8 +14,8 @@ class NewsCategoryDataset(Dataset):
   name = "News Category Dataset"
 
   # class constructor
-  def __init__(self):
-    super().__init__()
+  def __init__(self, do_clean=True):
+    super().__init__(do_clean)
     self.cmd = 'kaggle datasets download rmisra/news-category-dataset'
     self.dirname = 'news_category_dataset'
 
@@ -61,8 +60,9 @@ class NewsCategoryDataset(Dataset):
       # Could we insert one space between the title and text?
       data['X'] = raw_data.headline + " " + raw_data.short_description
 
-      # Preprocess the text
-      data['X'] = data['X'].apply(preprocess)
+      if self.do_clean:
+        # Preprocess the text
+        data = self.preprocess_text(data)
 
       data['y'] = le.transform(raw_data.category)
       self.data = data
