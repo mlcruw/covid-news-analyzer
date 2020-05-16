@@ -62,12 +62,15 @@ class StanfordSentimentDataset(Dataset):
     # Use "data" instead
     
     data['X'] = self.raw_data.Phrase
+    data['y'] = self.raw_data.Sentiment
+    # Important!!!!!!!
+    #    Drop NaN row data as it appears inside raw data
+    data = data.dropna(axis='index')
 
     if self.do_clean:
         # Preprocess the text
         data = self.preprocess_text(data)
 
-    data['y'] = self.raw_data.Sentiment
     self.data = data
     # self.data = pd.concat([self.train_data, self.test_data])
 
