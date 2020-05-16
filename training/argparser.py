@@ -47,7 +47,7 @@ def argparser():
 
   parser.add_argument('--split_ratio',
                       type=float,
-                      default=0.9,
+                      default=1.0,
                       help='train / val split ratio ($\in$ [0.0, 1.0])',
                       dest='split_ratio')
     

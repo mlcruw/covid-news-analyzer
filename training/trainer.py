@@ -10,6 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from xgboost import XGBClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import precision_score, accuracy_score
@@ -29,11 +30,11 @@ model_class_map = {
 
 model_params = {
     'svm': {'C': [1e-2, 1e-1, 1, 10], 'kernel': ['linearl', 'poly', 'rbf']},
-    'lr': {'C': [1e-2, 1e-1, 1, 10]},
+    'lr': {'C': [1e-2, 1e-1, 1, 10], 'max_iter': [1000]},
     'rf': {'max_depth': [None, 10, 20, 50], 'min_samples_split': [2, 5, 10],
         'min_samples_leaf': [1, 2, 5]},
-    'ada': {'n_estimators': [20, 40, 50, 75, 100]},
-    'xgb': {'eta': [0.1, 0.3, 0.5], 'max_depth': [4, 6, 8],
+    'ada': {'n_estimators': [20, 50, 100]},
+    'xgb': {'eta': [0.1, 0.3], 'max_depth': [4, 6],
         'lambda': [1e-2, 1e-1, 1]}
 }
 
@@ -44,11 +45,11 @@ transform_class_map = {
 }
 
 transform_params = {
-    'bow': {'stop_words': 'english', 'min_df': 5},
-    'tfidf': {'stop_words': 'english', 'min_df': 5},
+    'bow': {'stop_words': 'english', 'min_df': 5, 'max_features': 5000},
+    'tfidf': {'stop_words': 'english', 'min_df': 5, 'max_features': 5000},
     'ngram': {
-        'stop_words': 'english', 'min_df': 5,
-        'analyzer': 'char_wb', 'ngram_range': (1, 3)
+        'stop_words': 'english', 'min_df': 5, 'max_features': 5000,
+        'ngram_range': (1, 3)
     }
 }
 
@@ -98,7 +99,7 @@ class Trainer:
             X_train, X_val = FeatureExtractor(self.dataset.train_data['X'],
                 self.dataset.test_data['X'], transform).out
             self.transformed[transform]['X_train'] = X_train
-            self.transformed[transform]['X_val'] = X_val
+            self.transformed[transform]['X_test'] = X_val
 
     def get_train_data(self):
         """
@@ -136,7 +137,8 @@ class Trainer:
         model_obj = model_class_map[model]()
         # Fix the "to dense" bug "fit" requires dense input
         steps = [('tranform', transform_obj),
-                 ('to_dense', DenseTransformer()),
+                #  ('to_dense', DenseTransformer()),
+                #  ('pca', PCA(n_components=1000)),
                  ('model', model_obj)]
         self.pipelines[model][transform] = Pipeline(steps, verbose=True)
 
@@ -161,7 +163,8 @@ class Trainer:
             self.gridsearch[model] = {}
             for transform in self.pipelines[model]:
                 param_grid = self.get_param_grid(model, transform)
-                search = GridSearchCV(self.pipelines[model][transform], param_grid, n_jobs=n_jobs)
+                search = GridSearchCV(self.pipelines[model][transform],
+                    param_grid, n_jobs=n_jobs, verbose=2)
                 self.gridsearch[model][transform] = search
 
     def train(self, grid=True):
