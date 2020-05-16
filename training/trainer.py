@@ -9,7 +9,7 @@ from sklearn.svm import SVC, LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from xgboost import XGBClassifier
-sklearn.multiclass import OneVsRestClassifier
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
