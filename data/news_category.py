@@ -4,6 +4,7 @@ import pandas as pd
 import json
 from .dataset import Dataset
 from sklearn.preprocessing import LabelEncoder
+from .preprocessing import preprocess
 
 # TODO:
 # - figure out a good split fraction
@@ -44,9 +45,10 @@ class NewsCategoryDataset(Dataset):
       # Read raw data into pandas dataframe
       raw_data = pd.read_json(f, lines=True)
 
-      # Read into a list of JSONs
-      # raw_data = [json.loads(line) for line in f.read().splitlines()]
-
+      # Filter useful categories
+      categories = ['POLITICS', 'ENTERTAINMENT', 'TRAVEL', 'WELLNESS', 'BUSINESS',
+              'SPORTS', 'SCIENCE', 'COMEDY', 'CRIME', 'RELIGION']
+      raw_data = raw_data[raw_data['category'].isin(categories)]
       self.raw_data = raw_data
 
       unique_categories = list(pd.unique(raw_data.category))
@@ -58,6 +60,10 @@ class NewsCategoryDataset(Dataset):
       data = pd.DataFrame()
       # Could we insert one space between the title and text?
       data['X'] = raw_data.headline + " " + raw_data.short_description
+
+      # Preprocess the text
+      data['X'] = data['X'].apply(preprocess)
+
       data['y'] = le.transform(raw_data.category)
       self.data = data
 

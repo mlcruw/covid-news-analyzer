@@ -3,6 +3,7 @@ import zipfile
 import numpy as np
 import pandas as pd
 from .dataset import Dataset
+from .preprocessing import preprocess
 
 # FIXME:
 # - test_data.y has NaNs filled in it. Since dataset was downloaded from kaggle
@@ -61,13 +62,15 @@ class FakeNewsDataset(Dataset):
     # Important!!!!!!!
     #    Drop NaN row data as it appears inside raw data
     data = data.dropna(axis='index')
-    
+
+    # Preprocess the text
+    data['X'] = data['X'].apply(preprocess)
 
     #self.test_data = pd.DataFrame()
     #self.test_data['X'] = test_raw_data.title + test_raw_data.text
     #self.test_data['y'] = pd.Series(np.nan, index=np.arange(len(test_raw_data.index)))
     #self.data = pd.concat([self.train_data, self.test_data])
-    
+
     self.data = data
     #print(self.data)
     print("Done")

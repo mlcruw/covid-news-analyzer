@@ -1,4 +1,5 @@
 import string
+import re
 import nltk
 from nltk.tokenize import word_tokenize
 nltk.download('stopwords')
@@ -12,14 +13,13 @@ from nltk.stem import WordNetLemmatizer
 # For word_tokenize()
 nltk.download('punkt')
 
-
 # Class for lemmatizing
 # Does lemmatization after tokenizing using NLTK's tokenizer
 class LemmaTokenizer:
   def __init__(self):
     self.wnl = WordNetLemmatizer()
   def __call__(self, doc):
-    return [self.wnl.lemmatize(t) for t in word_tokenize(doc)]
+    return ' '.join([self.wnl.lemmatize(t) for t in word_tokenize(doc)])
 
 
 # Class for stemming operation
@@ -28,8 +28,21 @@ class StemTokenizer:
   def __init__(self):
     self.porter = PorterStemmer()
   def __call__(self, doc):
-    return [self.porter.stem(t) for t in word_tokenize(doc)]
+    return ' '.join([self.porter.stem(t) for t in word_tokenize(doc)])
 
+
+lemmatize = LemmaTokenizer()
+stem = StemTokenizer()
+def preprocess(x, do_stem=False, do_lemmatize=True):
+  """
+  Final preprocessing method used to preprocess datasets
+  """
+  x = re.sub('[^a-z\s]', '', x.lower()) # convert to lowercase and remove noise
+  if do_stem:
+    x = stem(x.lower())
+  if do_lemmatize:
+    x = lemmatize(x)
+  return x
 
 # def tokenize_text(text):
 #   """

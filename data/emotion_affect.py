@@ -4,6 +4,7 @@ import pandas as pd
 import json
 from .dataset import Dataset
 from sklearn.preprocessing import LabelEncoder
+from .preprocessing import preprocess
 
 
 class EmotionAffectDataset(Dataset):
@@ -65,6 +66,9 @@ class EmotionAffectDataset(Dataset):
 
       # Create a new pandas dataframe from raw_data columns
       data = pd.DataFrame(proc_data)
+
+      # Preprocess the text
+      data['X'] = data['X'].apply(preprocess)
 
       self.data = data
       print(len(self.data.index))
