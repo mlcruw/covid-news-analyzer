@@ -38,7 +38,7 @@ if args.load_clean:
     dataset = dataset_map[args.dataset](do_clean=False)
     data_path = os.path.join(config.model_dir, args.dataset+'_clean.csv')
     if os.path.exists(data_path):
-        clean_data = pd.read_csv(data_path)
+        clean_data = pd.read_csv(data_path).dropna()
         dataset.data = clean_data
     print("Done")
 else:
@@ -66,7 +66,7 @@ if not(args.test_only):
 # Get the evaluation metric
 # If test only GridSearchCV is not fitted yet -> so set grid to False
 if args.test_only:
-    metrics = trainer.evaluate(grid=False)
+    metrics = trainer.evaluate()
 else:
     metrics = trainer.evaluate()
 

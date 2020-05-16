@@ -9,6 +9,7 @@ from sklearn.svm import SVC, LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from xgboost import XGBClassifier
+sklearn.multiclass import OneVsRestClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
@@ -136,7 +137,14 @@ class Trainer:
         tranform_params = transform_params[transform]
         #print('transform params: ', transform_params)
         transform_obj = transform_class_map[transform](**tranform_params)
-        model_obj = model_class_map[model]()
+        if model == 'lr':
+            model_obj = model_class_map[model](max_iter=1000)
+        elif model == 'svm':
+            model_obj = OneVsRestClassifier(model_class_map[model]())
+        elif model in ['rf', 'xgb']:
+            model_obj = model_class_map[model](n_jobs=-1)
+        else:
+            model_obj = model_class_map[model]()
         # Fix the "to dense" bug "fit" requires dense input
         steps = [('tranform', transform_obj),
                 #  ('to_dense', DenseTransformer()),
