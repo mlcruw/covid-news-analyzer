@@ -21,6 +21,12 @@ def predict():
     """
     article = get_article(request.form['article_url'])
 
+    # predictions = evaluate_all(article.text, article.title)
+    # sentiment = predictions['sentiment']
+    # fake = predictions['fake']
+    # category = predictions['category']
+    # emotion = predictions['emotion']
+
     # prediction = model.predict(final_features)
 
     categories = ['Science', 'Politics', 'Religion', 'Entertainment', 'Medicine']

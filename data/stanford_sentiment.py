@@ -3,7 +3,6 @@ import zipfile
 import numpy as np
 import pandas as pd
 from .dataset import Dataset
-from .preprocessing import preprocess
 
 # FIXME:
 # - test_data.y has NaNs filled in it. Since dataset was downloaded from kaggle
@@ -14,8 +13,8 @@ class StanfordSentimentDataset(Dataset):
   name = "Stanford Sentiment Analysis Dataset"
 
   # class constructor
-  def __init__(self):
-    super().__init__()
+  def __init__(self, do_clean=True):
+    super().__init__(do_clean)
     self.cmd = 'kaggle competitions download -c sentiment-analysis-on-movie-reviews'
     self.dirname = 'stanford_sentiment'
 
@@ -63,10 +62,15 @@ class StanfordSentimentDataset(Dataset):
     # Use "data" instead
     
     data['X'] = self.raw_data.Phrase
-    # Preprocess the text
-    data['X'] = data['X'].apply(preprocess)
-
     data['y'] = self.raw_data.Sentiment
+    # Important!!!!!!!
+    #    Drop NaN row data as it appears inside raw data
+    data = data.dropna(axis='index')
+
+    if self.do_clean:
+        # Preprocess the text
+        data = self.preprocess_text(data)
+
     self.data = data
     # self.data = pd.concat([self.train_data, self.test_data])
 
