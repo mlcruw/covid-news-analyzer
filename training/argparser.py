@@ -57,6 +57,11 @@ def argparser():
                       default=0.0,
                       help='ratio to test, when set to 0.0 uses the above val split ratio otherwise use test_ratio * num of samples',
                       dest='test_ratio')
+  
+  parser.add_argument('-sd',
+                      '--save_data',
+                      action='store_true',
+                      help='when set, cleaned dataset will be saved')
 
   args = parser.parse_args()
 

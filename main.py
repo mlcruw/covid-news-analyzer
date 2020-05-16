@@ -39,6 +39,11 @@ config = Config(dataset=args.dataset,
                 load_path=args.load_path,
                 test=args.test_only)
 
+if args.save_data:
+    print("Saving cleaned data")
+    dataset.data.to_csv(os.path.join(config.model_dir, args.dataset+'.csv'))
+    print("Done")
+
 trainer = Trainer(dataset=dataset, models=args.models, transforms=args.feats, cfg=config)
 # If we only want to test
 if args.test_only:
@@ -61,6 +66,7 @@ else:
     print("Test result : ")
     print(metrics)
     trainer.logger.info(metrics)
+
 
 # Sample Usage:
 # [Emotion]
