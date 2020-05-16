@@ -12,6 +12,7 @@ from nltk.stem import WordNetLemmatizer
 
 # For word_tokenize()
 nltk.download('punkt')
+nltk.download('wordnet')
 
 # Class for lemmatizing
 # Does lemmatization after tokenizing using NLTK's tokenizer

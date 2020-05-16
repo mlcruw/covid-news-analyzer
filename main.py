@@ -104,9 +104,18 @@ else:
 # 2. Test
 #       python3 main.py --dataset stan_sent --models lr --feats bow --split_ratio 0.1 --test_ratio 0.02 --load_path stan.model -test_only
 
+
+
+
 # Final commands:
 # [Emotion]
 # python main.py --dataset emo_aff --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path emo.model --save_data --save_results
 
 # [News Category]
 # python main.py --dataset news_cat --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path news.model --save_data --save_results
+
+# [Fake News]
+# python main.py --dataset fake_news --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path fake.model --save_data --save_results
+
+# [Stanford Sentiment]
+# python main.py --dataset stan_sent --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path stan.model --save_data --save_results

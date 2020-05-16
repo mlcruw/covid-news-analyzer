@@ -29,7 +29,7 @@ model_class_map = {
 }
 
 model_params = {
-    'svm': {'C': [1e-2, 1e-1, 1, 10], 'kernel': ['linearl', 'poly', 'rbf']},
+    'svm': {'C': [1e-2, 1e-1, 1, 10], 'kernel': ['linear', 'poly', 'rbf']},
     'lr': {'C': [1e-2, 1e-1, 1, 10], 'max_iter': [1000]},
     'rf': {'max_depth': [None, 10, 20, 50], 'min_samples_split': [2, 5, 10],
         'min_samples_leaf': [1, 2, 5]},
