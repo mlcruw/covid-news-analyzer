@@ -19,8 +19,8 @@ class FakeNewsDataset(Dataset):
   }
 
   # class constructor
-  def __init__(self):
-    super().__init__()
+  def __init__(self, do_clean=True):
+    super().__init__(do_clean)
     self.cmd = 'kaggle competitions download -c fake-news'
     self.dirname = 'fake_news_dataset'
 

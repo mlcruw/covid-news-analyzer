@@ -13,8 +13,8 @@ class StanfordSentimentDataset(Dataset):
   name = "Stanford Sentiment Analysis Dataset"
 
   # class constructor
-  def __init__(self):
-    super().__init__()
+  def __init__(self, do_clean=True):
+    super().__init__(do_clean)
     self.cmd = 'kaggle competitions download -c sentiment-analysis-on-movie-reviews'
     self.dirname = 'stanford_sentiment'
 
