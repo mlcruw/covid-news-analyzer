@@ -41,7 +41,7 @@ config = Config(dataset=args.dataset,
 
 if args.save_data:
     print("Saving cleaned data")
-    dataset.data.to_csv(os.path.join(config.model_dir, args.dataset+'.csv'))
+    dataset.data.to_csv(os.path.join(config.model_dir, args.dataset+'_clean.csv'), index=False)
     print("Done")
 
 trainer = Trainer(dataset=dataset, models=args.models, transforms=args.feats, cfg=config)
@@ -58,6 +58,13 @@ if args.test_only:
     metrics = trainer.evaluate(grid=False)
 else:
     metrics = trainer.evaluate()
+
+# Save results
+if args.save_results:
+    print("Saving results")
+    metrics.to_csv(os.path.join(config.model_dir, args.dataset+'_results.csv'), index=False)
+    print("Done")
+
 # Save best
 if not(args.test_only):
     trainer.save_best(metrics)
@@ -96,3 +103,10 @@ else:
 #       python3 main.py --dataset stan_sent --models lr --feats bow --split_ratio 0.01 --test_ratio 0.01 --save_path stan.model
 # 2. Test
 #       python3 main.py --dataset stan_sent --models lr --feats bow --split_ratio 0.1 --test_ratio 0.02 --load_path stan.model -test_only
+
+# Final commands:
+# [Emotion]
+# python main.py --dataset emo_aff --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path emo.model --save_data --save_results
+
+# [News Category]
+# python main.py --dataset news_cat --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path news.model --save_data --save_results
