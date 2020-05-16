@@ -29,7 +29,7 @@ model_class_map = {
 }
 
 model_params = {
-    'svm': {'C': [1e-2, 1e-1, 1, 10], 'kernel': ['linear', 'poly', 'rbf']},
+    'svm': {'C': [1e-1, 1, 10], 'kernel': ['linear', 'poly', 'rbf']},
     'lr': {'C': [1e-2, 1e-1, 1, 10], 'max_iter': [1000]},
     'rf': {'max_depth': [None, 10, 20, 50], 'min_samples_split': [2, 5, 10],
         'min_samples_leaf': [1, 2, 5]},
@@ -75,14 +75,16 @@ class Trainer:
         - results = trainer.evaluate()
     """
     #TODO: the config and log_name as arguments?
-    def __init__(self, dataset, models, transforms, cfg=Config(), log_name='logs.txt'):
+    def __init__(self, dataset, models, transforms, cfg=Config(), log_name='logs.txt', grid=True):
         self.pipelines = {}
         self.gridsearch = {}
         self.models = models
         self.transforms = transforms
         self.dataset = dataset
         self.init_pipelines(models, transforms)
-        self.init_gridsearch()
+        self.grid = grid
+        if self.grid:
+            self.init_gridsearch()
         # The current configuration for this trainer object
         self.cfg = cfg
         # The logger to saving (potentially) the config object and other stuff
@@ -167,14 +169,14 @@ class Trainer:
                     param_grid, n_jobs=n_jobs, verbose=2)
                 self.gridsearch[model][transform] = search
 
-    def train(self, grid=True):
+    def train(self):
         """
         Train all the models on training data with optional gridsearch
 
         Args:
             - grid (bool), default=True: If True, runs GridSearch over hyperparams
         """
-        if grid:
+        if self.grid:
             model_dict = self.gridsearch
         else:
             model_dict = self.pipelines
@@ -197,7 +199,7 @@ class Trainer:
             X_train, y_train = self.get_train_data()
             self.pipelines[model][transform].fit(X_train, y_train)
 
-    def save_model(self, model, transform, model_path, grid=True):
+    def save_model(self, model, transform, model_path):
         """
         Save a specific model and transformation to the path : "model_path"
 
@@ -212,7 +214,7 @@ class Trainer:
         #Config should be imported somehow so that it knows where the folder is
         file_path = os.path.join(self.cfg.model_dir,model_path)
         with open(file_path, 'wb') as fw:
-            if grid:
+            if self.grid:
                 model_obj = self.gridsearch[model][transform].best_estimator_
             else:
                 model_obj = self.pipelines[model][transform]
@@ -240,7 +242,7 @@ class Trainer:
         self.logger.info("Loading from this configuration:")
         self.logger.info(', '.join("%s: %s" % item for item in vars(self.cfg).items()))
 
-    def evaluate(self, grid=True):
+    def evaluate(self):
         """
         Evaluate all the models on validation data and return metrics
         stored in a pandas DataFrame
@@ -248,7 +250,7 @@ class Trainer:
         Args:
             - grid (bool), default=True: If True, uses the best_estimator from GridSearch
         """
-        if grid:
+        if self.grid:
             model_dict = self.gridsearch
         else:
             model_dict = self.pipelines
@@ -270,7 +272,7 @@ class Trainer:
                 metrics.append(metric_dict)
         return pd.DataFrame(metrics)
 
-    def save_best(self, metrics, save_path=None, grid=True):
+    def save_best(self, metrics, save_path=None):
         """
         Save the best model to the path : "model_path"
 
@@ -292,7 +294,7 @@ class Trainer:
         self.logger.info(['The best model precision is %.2f ' % best_precision])
         self.logger.info(['The best model is %s ' % best_config.model])
         self.logger.info(['The best feature transformation is %s ' % best_config.feats])
-        if grid:
+        if self.grid:
             best_config.params = self.gridsearch[best_config.model][best_config.feats].best_params_
             self.logger.info(['The best parameters found via GridSearch are {}'.format(best_config.params)])
         self.logger.info(['The best model configuration is ', ', '.join("%s: %s" % item for item in vars(best_config).items())])
@@ -300,7 +302,7 @@ class Trainer:
         # Save model to file
         if save_path is None:
             save_path = self.cfg.save_path
-        self.save_model(metrics.iloc[best_row]['model'], metrics.iloc[best_row]['transform'], save_path, grid=grid)
+        self.save_model(metrics.iloc[best_row]['model'], metrics.iloc[best_row]['transform'], save_path)
         self.logger.info('Saving done')
 
 if __name__=='__main__':
