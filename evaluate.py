@@ -12,7 +12,7 @@ from data.emotion_affect import EmotionAffectDataset
 from data.fake_news import FakeNewsDataset
 
 import csv
-
+import numpy as np
 # [IMPORTANT!!!!!!] Note some models require the entire article while others require the concatenation of headline title plus a separating space plus the body text. Make sure your modification aligns with those dataset classes.
 
 def eval_emotion(article_text, article_title):
@@ -26,9 +26,37 @@ def eval_emotion(article_text, article_title):
     pred_emotions = loaded_pipeline.predict(sentences)
     print("Number of sentences: ", len(sentences))
     print("======")
-    print(pred_emotions)
-    final_emotion = stats.mode(pred_emotions).mode[0]
-    return EmotionAffectDataset.emotion_class_dict[final_emotion]
+    print("Per-sentence emotion prediction: ", pred_emotions)
+    
+    # Sorry. I don't have time for this. Feel free to rewrite. Don't want to waste time.
+    cnt = np.zeros(6) #0 - 5
+    for i in range(len(sentences)):
+        cnt[pred_emotions[i]] += 1
+    # The index array of category in descending frequency order
+    idx = np.arange(6)
+    for i in range(5):
+        for j in range(i + 1, 6):
+            # swap
+            if cnt[idx[i]] < cnt[idx[j]]:
+                idx[i] += idx[j]
+                idx[j] = idx[i] - idx[j]
+                idx[i] = idx[i] - idx[j]
+                
+    # Take emotions appearing at least XXX times or simply
+    # take top 3 frequency (appeared > 0 time)
+    # feel free to play around with the threshold
+    final_emotion = EmotionAffectDataset.emotion_class_dict[idx[0]] 
+    for i in range(1, 6):
+        if cnt[idx[i]] >= min(3, len(sentences) / 5):
+        
+        # Or simply take top 3 frequency
+        #if cnt[idx[i]] > 0:
+            final_emotion = final_emotion + "," + EmotionAffectDataset.emotion_class_dict[idx[i]] 
+    print("Index of class pred in descending number of appearances: ", idx)
+    return final_emotion
+    
+    #final_emotion = stats.mode(pred_emotions).mode[0]
+    #return EmotionAffectDataset.emotion_class_dict[final_emotion]
 
 def eval_category(article_title_n_text):
     # Evaluate news category
@@ -66,6 +94,9 @@ def eval_sent(article_text, article_title):
     sentences = sent_tokenize(article_text)
     sentences.append(article_title)
     pred_sent = loaded_pipeline.predict(sentences)
+    print('Sentiment mode: ', stats.mode(pred_sent).mode[0])
+    print('Sentiment mean: ', pred_sent.mean())
+    print('Per-sentence sentiment prediction: ', pred_sent)
     final_sent = pred_sent.mean()
     return final_sent
 
@@ -79,13 +110,13 @@ def evaluate_all(article_title, article_text):
     # Special handling regarding title and text
     title_n_text = article_title + " " + article_text
     pred_emotion = eval_emotion(article_text, article_title)
-    #pred_category = eval_category([title_n_text]) #Don't delete []; required by sklearn
+    pred_category = eval_category([title_n_text]) #Don't delete []; required by sklearn
     pred_fake = eval_fake([title_n_text])
-    #pred_sentiment = eval_sent(article_text, article_title)
+    pred_sentiment = eval_sent(article_text, article_title)
     
-    pred_category = []
-    
-    pred_sentiment = []
+    #pred_category = []
+    #pred_fake = []
+    #pred_sentiment = []
     return { "Emotion 1-7": pred_emotion, "Categories": pred_category, "Fakeness (0,1)": pred_fake, "Sentiments (0-4)": pred_sentiment }
     
     
@@ -93,7 +124,8 @@ if __name__=="__main__":
     data = pd.read_csv('covid19_articles/val_set/covid_19_articles.csv')
     csv_columns = ['Fakeness (0,1)','Sentiments (0-4)','Emotion 1-7','Categories']
     eval_dict_all = []
-    for i in range(20):
+    # 2-25 in csv
+    for i in range(24):
         print(' Article ', i)
         # Load all at once
         eval_cur = evaluate_all(data['title'][i], data['text'][i])
