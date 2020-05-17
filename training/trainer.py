@@ -114,7 +114,7 @@ class Trainer:
         """
         Returns X_test, y_test
         """
-        return self.dataset.train_data['X'].values, self.dataset.train_data['y'].values
+        return self.dataset.test_data['X'].values, self.dataset.test_data['y'].values
 
     def init_pipelines(self, models, transforms):
         """
