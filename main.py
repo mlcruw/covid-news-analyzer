@@ -55,7 +55,7 @@ if args.save_data:
     dataset.data.to_csv(os.path.join(config.model_dir, args.dataset+'_clean.csv'), index=False)
     print("Done")
 
-trainer = Trainer(dataset=dataset, models=args.models, transforms=args.feats, cfg=config)
+trainer = Trainer(dataset=dataset, models=args.models, transforms=args.feats, cfg=config, grid=False)
 # If we only want to test
 if args.test_only:
     trainer.load_model(args.models[0], args.feats[0], args.load_path)
@@ -120,13 +120,13 @@ else:
 
 # Final commands:
 # [Emotion]
-# nohup python -u main.py --dataset emo_aff --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path emo.model --save_data --save_results > out_emo.txt &
+# nohup python -u main.py --dataset emo_aff --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path emo.model --load_clean --save_results > out_emo.txt &
 
 # [News Category]
-# nohup python -u main.py --dataset news_cat --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path news.model --save_data --save_results > out_news.txt &
+# nohup python -u main.py --dataset news_cat --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path news.model --load_clean --save_results > out_news.txt &
 
 # [Fake News]
-# nohup python -u main.py --dataset fake_news --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path fake.model --save_data --save_results > out_fake.txt &
+# nohup python -u main.py --dataset fake_news --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path fake.model --load_clean --save_results > out_fake.txt &
 
 # [Stanford Sentiment]
-# nohup python -u main.py --dataset stan_sent --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path stan.model --save_data --save_results > out_stan.txt &
+# nohup python -u main.py --dataset stan_sent --models mnb svm lr xgb rf ada --feats bow ngram tfidf --split_ratio 1.0 --test_ratio 0.2 --save_path stan.model --load_clean --save_results > out_stan.txt &

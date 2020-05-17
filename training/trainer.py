@@ -8,13 +8,14 @@ from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.svm import SVC, LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.neural_network import MLPClassifier
 from xgboost import XGBClassifier
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import precision_score, accuracy_score
+from sklearn.metrics import precision_score, accuracy_score, precision_recall_fscore_support
 #Do not comment as it contains the default configuration for trainer, see parameter for __init__ below
 from training.config import Config
 from data.feature_extraction import FeatureExtractor
@@ -24,7 +25,7 @@ from utils.logger import colorlogger
 
 
 model_class_map = {
-    'gnb': GaussianNB, 'mnb': MultinomialNB, 'svm': SVC,
+    'mnb': MultinomialNB, 'svm': SVC, 'mlp': MLPClassifier,
     'lr': LogisticRegression, 'linearsvm': LinearSVC, 'xgb': XGBClassifier,
     'rf': RandomForestClassifier, 'ada': AdaBoostClassifier
 }
@@ -269,12 +270,17 @@ class Trainer:
                 model_obj = model_dict[model][transform]
                 X_test, y_test = self.get_test_data()
                 y_pred = model_obj.predict(X_test)
-                precision = precision_score(y_test, y_pred, average='micro')
+                precision_micro = precision_score(y_test, y_pred, average='micro')
+                precision_macro, recall_macro, f1_macro, _ = \
+                    precision_recall_fscore_support(y_test, y_pred, average='macro')
                 acc = accuracy_score(y_test, y_pred)
                 metric_dict = {
                     'model': model,
                     'transform': transform,
-                    'precision': precision,
+                    'precision': precision_micro,
+                    'precision (macro)': precision_macro,
+                    'recall (macro)': recall_macro,
+                    'f1-score (macro)': f1_macro,
                     'accuracy': acc
                 }
                 metrics.append(metric_dict)
