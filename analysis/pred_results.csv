@@ -1,0 +1,25 @@
+"Fakeness (0,1)",Sentiments (0-4),Emotion 1-7,Categories
+1,2.020833333,"angry-disgusted,happy,sad,surprised",POLITICS
+0,2,"angry-disgusted,happy",POLITICS
+1,2,angry-disgusted,POLITICS
+0,2.125,"angry-disgusted,happy",WELLNESS
+0,2.127659574,"angry-disgusted,happy",SCIENCE
+0,2,angry-disgusted,WELLNESS
+0,2,angry-disgusted,WELLNESS
+0,1.928571429,"angry-disgusted,happy",POLITICS
+0,1.954545455,"angry-disgusted,happy",WELLNESS
+0,1.733333333,"angry-disgusted,happy",BUSINESS
+1,1.88,"angry-disgusted,happy,surprised",POLITICS
+0,2.051282051,"angry-disgusted,happy,fearful,surprised",POLITICS
+1,2.166666667,angry-disgusted,POLITICS
+0,1.857142857,angry-disgusted,TRAVEL
+0,2,angry-disgusted,POLITICS
+1,2.038461538,"angry-disgusted,happy",SCIENCE
+1,2,"angry-disgusted,happy",CRIME
+1,2.0625,angry-disgusted,BUSINESS
+1,2,"angry-disgusted,happy",WELLNESS
+0,1.782608696,"angry-disgusted,happy",BUSINESS
+1,2,"angry-disgusted,happy",POLITICS
+1,2,"angry-disgusted,happy,sad",RELIGION
+1,1.944444444,"angry-disgusted,happy",POLITICS
+1,2.111111111,angry-disgusted,SPORTS
