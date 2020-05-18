@@ -2,10 +2,17 @@ from sklearn.metrics import accuracy_score, mean_squared_error
 import pandas as pd
 import numpy as np
 
+def map_fake_label(label):
+    if label == "Authentic":
+        return 0
+    else:
+        return 1
 
 def compute_accuracy_scores():
     df_true = pd.read_csv("true_results.csv")
     df_pred = pd.read_csv("pred_results.csv")
+
+    df_pred["Fakeness (0,1)"] = df_pred["Fakeness (0,1)"].apply(map_fake_label)
 
     df_true["Fakeness (0,1)"] = df_true["Fakeness (0,1)"].astype(int)
     df_pred["Fakeness (0,1)"] = df_pred["Fakeness (0,1)"].astype(int)
@@ -44,6 +51,8 @@ def compute_accuracy_scores():
             "Emotion":    [emotion_acc],
             "Categories": [categories_acc]}
     df_out = pd.DataFrame(data)
+    print(df_out.to_markdown())
+    print()
     print(df_out.to_latex())
 
 

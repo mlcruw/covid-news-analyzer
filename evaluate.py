@@ -13,17 +13,20 @@ from data.fake_news import FakeNewsDataset
 
 import csv
 import numpy as np
+
+from data.preprocessing import preprocess
+
 # [IMPORTANT!!!!!!] Note some models require the entire article while others require the concatenation of headline title plus a separating space plus the body text. Make sure your modification aligns with those dataset classes.
 
-def eval_emotion(article_text, article_title):
+def eval_emotion(sentences):
     # Evaluate emotion
-    #   Input: The article
+    #   Input: the entire article split into sentences
     #   Output: 'angry-disgusted' etc.
+
     with open('output/model_dump/emo.model', 'rb') as f:
         loaded_pipeline = pickle.load(f)
-    sentences = sent_tokenize(article_text)
-    sentences.append(article_title)
     pred_emotions = loaded_pipeline.predict(sentences)
+
     print("Number of sentences: ", len(sentences))
     print("======")
     print("Per-sentence emotion prediction: ", pred_emotions)
@@ -69,7 +72,7 @@ def eval_category(article_title_n_text):
     
     with open('output/model_dump/news.model', 'rb') as f:
         loaded_pipeline = pickle.load(f)
-    
+
     pred_cate = loaded_pipeline.predict(article_title_n_text)
     le = news_encoder
     return le.inverse_transform(pred_cate)[0]
@@ -80,19 +83,17 @@ def eval_fake(article_title_n_text):
     #   Output: "Fake" or "Authentic"
     with open('output/model_dump/fake.model', 'rb') as f:
         loaded_pipeline = pickle.load(f)
-    
+
     pred_fake = loaded_pipeline.predict(article_title_n_text)
     return FakeNewsDataset.fake_class_dict[pred_fake[0]]
 
-def eval_sent(article_text, article_title):
+def eval_sent(sentences):
     # Evaluate sentiment
-    #   Input: same as eval_emotion: the entire article
+    #   Input: same as eval_emotion: the entire article split into sentences
     #   Output: sentiment score 0-4
     with open('output/model_dump/stan.model', 'rb') as f:
         loaded_pipeline = pickle.load(f)
-    
-    sentences = sent_tokenize(article_text)
-    sentences.append(article_title)
+
     pred_sent = loaded_pipeline.predict(sentences)
     print('Sentiment mode: ', stats.mode(pred_sent).mode[0])
     print('Sentiment mean: ', pred_sent.mean())
@@ -106,14 +107,17 @@ def evaluate_all(article_title, article_text):
     # Return a dictonary 
     # { "emotion": pred_emotion, "category": pred_category, "fake": pred_fake, "sentiment": pred_sentiment }
     # All pred_ are text strings except sentiment (a score \in [0, 4])
-    
-    # Special handling regarding title and text
-    title_n_text = article_title + " " + article_text
-    pred_emotion = eval_emotion(article_text, article_title)
-    pred_category = eval_category([title_n_text]) #Don't delete []; required by sklearn
-    pred_fake = eval_fake([title_n_text])
-    pred_sentiment = eval_sent(article_text, article_title)
-    
+
+    sentences = sent_tokenize(article_text)
+    sentences.append(article_title)
+    sentences = list(map(preprocess, sentences))
+    combined = ' '.join(sentences)
+
+    pred_emotion = eval_emotion(sentences)
+    pred_category = eval_category([combined]) #Don't delete []; required by sklearn
+    pred_fake = eval_fake([article_title + " " + article_text])
+    pred_sentiment = eval_sent(sentences)
+
     #pred_category = []
     #pred_fake = []
     #pred_sentiment = []
