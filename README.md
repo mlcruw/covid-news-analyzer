@@ -24,3 +24,6 @@ This would train the specified list of models on all the specified feature trans
 
 ## Evaluation
 Run `python evaluate.py` to obtain the predictions on the COVID-19 article test set, and use `python analysis/analyze.py` to obtain the evaluation scores.
+
+## Web Portal
+Go to directory `web` and run `python app.py` to launch the web portal. This lets you analyze a specific article against trained models placed in `output/model_dump` directory.
