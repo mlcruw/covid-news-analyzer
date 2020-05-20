@@ -4,11 +4,13 @@ from flask import Flask, request, jsonify, render_template
 import pickle
 from sklearn.linear_model import LogisticRegression
 from newspaper import Article
-from util import *
+from util import get_article
+import sys
+sys.path.append('../')
+from evaluate import evaluate_all, load_models
 
 app = Flask(__name__)
-# model = pickle.load(open('model.pkl', 'rb'))
-model = LogisticRegression()
+load_models('../')
 
 @app.route('/')
 def home():
@@ -21,24 +23,22 @@ def predict():
     """
     article = get_article(request.form['article_url'])
 
-    # predictions = evaluate_all(article.text, article.title)
-    # sentiment = predictions['sentiment']
-    # fake = predictions['fake']
-    # category = predictions['category']
-    # emotion = predictions['emotion']
+    predictions = evaluate_all(article.text, article.title, '../', True)
+    sentiment = predictions['sentiment']
+    fake = predictions['fake']
+    category = predictions['category']
+    emotion = predictions['emotion']
 
-    # prediction = model.predict(final_features)
+    # categories = ['Science', 'Politics', 'Religion', 'Entertainment', 'Medicine']
+    # emotions = ['Sad', 'Happy', 'Angry', 'Excited', 'Worried']
 
-    categories = ['Science', 'Politics', 'Religion', 'Entertainment', 'Medicine']
-    emotions = ['Sad', 'Happy', 'Angry', 'Excited', 'Worried']
-
-    sentiment = '{}% positive'.format(random.randint(0,100))
-    if random.random() > 0.5:
-        fake = 'Fake'
-    else:
-        fake = 'Genuine'
-    emotion = emotions[random.randint(0, len(emotions)-1)]
-    category = categories[random.randint(0, len(categories)-1)]
+    # sentiment = '{}% positive'.format(random.randint(0,100))
+    # if random.random() > 0.5:
+    #     fake = 'Fake'
+    # else:
+    #     fake = 'Genuine'
+    # emotion = emotions[random.randint(0, len(emotions)-1)]
+    # category = categories[random.randint(0, len(categories)-1)]
 
     return render_template('index.html', sentiment=sentiment, fake=fake, emotion=emotion, category=category)
 
