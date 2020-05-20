@@ -18,18 +18,19 @@ from data.preprocessing import preprocess
 
 # [IMPORTANT!!!!!!] Note some models require the entire article while others require the concatenation of headline title plus a separating space plus the body text. Make sure your modification aligns with those dataset classes.
 
+with open('output/model_dump/emo.model', 'rb') as f:
+    emotion_loaded_pipeline = pickle.load(f)
+
 def eval_emotion(sentences):
     # Evaluate emotion
     #   Input: the entire article split into sentences
     #   Output: 'angry-disgusted' etc.
 
-    with open('output/model_dump/emo.model', 'rb') as f:
-        loaded_pipeline = pickle.load(f)
-    pred_emotions = loaded_pipeline.predict(sentences)
+    pred_emotions = emotion_loaded_pipeline.predict(sentences)
 
-    print("Number of sentences: ", len(sentences))
-    print("======")
-    print("Per-sentence emotion prediction: ", pred_emotions)
+    # print("Number of sentences: ", len(sentences))
+    # print("======")
+    # print("Per-sentence emotion prediction: ", pred_emotions)
     
     # Sorry. I don't have time for this. Feel free to rewrite. Don't want to waste time.
     cnt = np.zeros(6) #0 - 5
@@ -55,7 +56,7 @@ def eval_emotion(sentences):
         # Or simply take top 3 frequency
         #if cnt[idx[i]] > 0:
             final_emotion = final_emotion + "," + EmotionAffectDataset.emotion_class_dict[idx[i]] 
-    print("Index of class pred in descending number of appearances: ", idx)
+    # print("Index of class pred in descending number of appearances: ", idx)
     return final_emotion
     
     #final_emotion = stats.mode(pred_emotions).mode[0]
@@ -87,19 +88,28 @@ def eval_fake(article_title_n_text):
     pred_fake = loaded_pipeline.predict(article_title_n_text)
     return FakeNewsDataset.fake_class_dict[pred_fake[0]]
 
+with open('output/model_dump/stan.model', 'rb') as f:
+    sent_loaded_pipeline = pickle.load(f)
 def eval_sent(sentences):
     # Evaluate sentiment
     #   Input: same as eval_emotion: the entire article split into sentences
     #   Output: sentiment score 0-4
-    with open('output/model_dump/stan.model', 'rb') as f:
-        loaded_pipeline = pickle.load(f)
-
-    pred_sent = loaded_pipeline.predict(sentences)
-    print('Sentiment mode: ', stats.mode(pred_sent).mode[0])
-    print('Sentiment mean: ', pred_sent.mean())
-    print('Per-sentence sentiment prediction: ', pred_sent)
+    pred_sent = sent_loaded_pipeline.predict(sentences)
+    # print('Sentiment mode: ', stats.mode(pred_sent).mode[0])
+    # print('Sentiment mean: ', pred_sent.mean())
+    # print('Per-sentence sentiment prediction: ', pred_sent)
     final_sent = pred_sent.mean()
     return final_sent
+
+def get_clean(article_text, article_title, out_combined=True):
+    if out_combined:
+        combined = article_text + " " + article_title
+        return preprocess(combined)
+    else:
+        sentences = sent_tokenize(article_text)
+        sentences.append(article_title)
+        sentences = list(map(preprocess, sentences))
+        return sentences
 
 def evaluate_all(article_title, article_text):
     # Load all 4 models
