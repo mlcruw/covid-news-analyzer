@@ -4,13 +4,20 @@ from flask import Flask, request, jsonify, render_template
 import pickle
 from sklearn.linear_model import LogisticRegression
 from newspaper import Article
-from util import get_article
+from util import get_article, TRUSTED_SOURCES
 import sys
-sys.path.append('../')
-from evaluate import evaluate_all, load_models
+BASE_PATH = '../'
+try:
+    sys.path.append(BASE_PATH)
+    from evaluate import evaluate_all, load_models
+except:
+    BASE_PATH = '.'
+    sys.path.append(BASE_PATH)
+    from evaluate import evaluate_all, load_models
+    
 
 app = Flask(__name__)
-load_models('../')
+load_models(BASE_PATH)
 
 @app.route('/')
 def home():
@@ -23,22 +30,15 @@ def predict():
     """
     article = get_article(request.form['article_url'])
 
-    predictions = evaluate_all(article.text, article.title, '../', True)
+    if article is None:
+        return "The article URL is invalid/not supported. " + \
+            "Try one of the following news sources: {}".format(TRUSTED_SOURCES)
+
+    predictions = evaluate_all(article.text, article.title, BASE_PATH, True)
     sentiment = predictions['sentiment']
     fake = predictions['fake']
     category = predictions['category']
     emotion = predictions['emotion']
-
-    # categories = ['Science', 'Politics', 'Religion', 'Entertainment', 'Medicine']
-    # emotions = ['Sad', 'Happy', 'Angry', 'Excited', 'Worried']
-
-    # sentiment = '{}% positive'.format(random.randint(0,100))
-    # if random.random() > 0.5:
-    #     fake = 'Fake'
-    # else:
-    #     fake = 'Genuine'
-    # emotion = emotions[random.randint(0, len(emotions)-1)]
-    # category = categories[random.randint(0, len(categories)-1)]
 
     return render_template('index.html', sentiment=sentiment, fake=fake, emotion=emotion, category=category)
 
