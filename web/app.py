@@ -7,14 +7,8 @@ from newspaper import Article
 from web.util import get_article, TRUSTED_SOURCES
 
 import sys
-BASE_PATH = '.'
-try:
-    sys.path.append(BASE_PATH)
-    from evaluate import evaluate_all, load_models
-except:
-    BASE_PATH = '../'
-    sys.path.append(BASE_PATH)
-    from evaluate import evaluate_all, load_models
+BASE_PATH = ''
+from evaluate import evaluate_all, load_models
 
 app = Flask(__name__)
 load_models(BASE_PATH)
