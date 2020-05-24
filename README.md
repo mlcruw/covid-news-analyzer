@@ -27,3 +27,5 @@ Run `python evaluate.py` to obtain the predictions on the COVID-19 article test 
 
 ## Web Portal
 Go to directory `web` and run `python app.py` to launch the web portal. This lets you analyze a specific article against trained models placed in `output/model_dump` directory.
+
+<img src="images/portal.png" alt="portal" width="350"/>
