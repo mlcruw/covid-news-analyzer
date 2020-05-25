@@ -6,8 +6,12 @@ Analyze news articles related to covid-19 based on different metrics:
 3. News Article Categorization
 4. Fakeness
 
+You can access the tool online at: https://covid-news-analyzer.herokuapp.com/
+
+(this doesn't currently support fakeness detection due to memory constraints on Heroku's free tier)
+
 ----
-## How To Run
+## How To Run Locally
 
 Install requirements from `requirements.txt` using `pip install -r requirements.txt` and run:
 
