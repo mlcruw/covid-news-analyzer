@@ -34,7 +34,7 @@ def predict():
     category = predictions['category']
     emotion = predictions['emotion']
 
-    sentiment = '{:.2f}% positive'.format(float(sentiment)*100/4)
+    sentiment = '{:.1f}% positive'.format(float(sentiment)*100/4)
 
     return render_template('index.html', sentiment=sentiment, fake=fake, emotion=emotion, category=category)
 
