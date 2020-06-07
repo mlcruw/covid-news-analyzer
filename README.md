@@ -33,3 +33,6 @@ Run `python evaluate.py` to obtain the predictions on the COVID-19 article test 
 Run `python wsgi.py` to launch the web portal. This lets you analyze a specific article against trained models placed in `output/model_dump` directory.
 
 <img src="images/portal.png" alt="portal" width="350"/>
+
+## Report
+You can find more details about the project <a href="images/COVID19_News_Analyser.pdf">here</a>.
