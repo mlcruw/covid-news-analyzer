@@ -1,6 +1,6 @@
 Flask==1.1.2
 newspaper3k==0.2.8
-requests==2.23.0
+requests==2.31.0
 scipy==1.4.1
 pandas==1.0.1
 nltk==3.4.5
